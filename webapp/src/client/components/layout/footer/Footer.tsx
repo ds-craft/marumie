@@ -4,52 +4,29 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { type FooterTextLink, getFooterTextLinks } from "@/client/lib/footer-navigation";
+import { SITE, copyrightText } from "@/shared/site-config";
 
-// SNSリンク集
+// リンク集（DSクラフト: 公式サイトとソースコード）
 const socialLinks = [
   {
-    name: "webサイト",
-    href: "https://team-mir.ai/",
+    name: "DSクラフト公式サイト",
+    href: SITE.homeUrl,
     icon: "icon-web.svg",
   },
   {
-    name: "YouTube",
-    href: "https://www.youtube.com/@team_mirai_jp",
-    icon: "icon-yt.svg",
-  },
-  {
-    name: "LINE",
-    href: "https://line.me/R/ti/p/@465hhyop?oat__id=5529589",
-    icon: "icon-line.svg",
-  },
-  {
-    name: "X",
-    mainText: "X",
-    subText: "（旧Twitter）",
-    href: "https://x.com/team_mirai_jp",
-    icon: "icon-x.svg",
-  },
-  {
-    name: "Instagram",
-    href: "https://www.instagram.com/team_mirai_jp/",
-    icon: "icon-insta.svg",
-  },
-  {
-    name: "Facebook",
-    href: "https://www.facebook.com/teammirai.official",
-    icon: "icon-fb.svg",
-  },
-  {
-    name: "TikTok",
-    href: "https://www.tiktok.com/@team_mirai_jp",
-    icon: "icon-tiktok.svg",
-  },
-  {
     name: "GitHub",
-    href: "https://github.com/team-mirai-volunteer/marumie",
+    href: SITE.sourceUrl,
     icon: "icon-github.svg",
   },
 ];
+
+function FooterLogo({ className }: { className: string }) {
+  return (
+    <div className={`${className} w-[120px] h-[120px] relative`}>
+      <Image src={SITE.logo.src} alt={SITE.logo.alt} fill className="object-contain" />
+    </div>
+  );
+}
 
 export default function Footer() {
   const pathname = usePathname();
@@ -74,14 +51,7 @@ export default function Footer() {
     <footer className="w-full bg-gradient-to-tl from-[#BCECD3] to-[#64D8C6] px-8 lg:px-[117px] py-12 lg:pt-12 lg:pb-9">
       <div className="max-w-[1278px] mx-auto flex flex-col items-center gap-9 lg:gap-10">
         {/* Logo - PC版のみ表示 */}
-        <div className="hidden lg:block w-[150px] h-[127px] relative">
-          <Image
-            src="/logos/team-mirai-logo.svg"
-            alt="Team Mirai Logo"
-            fill
-            className="object-contain"
-          />
-        </div>
+        <FooterLogo className="hidden lg:block" />
 
         {/* Text Links */}
         {/* SP: 2カラム縦並び / PC: 2行横並び */}
@@ -123,10 +93,7 @@ export default function Footer() {
                 </div>
                 {/* PC版のみラベル表示 */}
                 <span className="hidden lg:block text-base font-bold text-black">
-                  {social.mainText || social.name}
-                  {social.subText && (
-                    <span className="text-xs ml-1 opacity-80">{social.subText}</span>
-                  )}
+                  {social.name}
                 </span>
               </a>
             ))}
@@ -134,20 +101,22 @@ export default function Footer() {
         </div>
 
         {/* Logo - SP版のみ表示 */}
-        <div className="block lg:hidden w-[150px] h-[127px] relative">
-          <Image
-            src="/logos/team-mirai-logo.svg"
-            alt="Team Mirai Logo"
-            fill
-            className="object-contain"
-          />
-        </div>
+        <FooterLogo className="block lg:hidden" />
 
-        {/* Copyright */}
-        <div className="w-full text-center">
-          <p className="text-gray-600 text-sm leading-[1.25em]">
-            © 2025 Team Mirai All rights Reserved
+        {/* Copyright・ライセンス表示 */}
+        <div className="w-full text-center flex flex-col gap-2">
+          <p className="text-gray-600 text-sm leading-[1.25em]">{copyrightText()}</p>
+          <p className="text-gray-600 text-xs leading-[1.5em]">
+            本サイトは{" "}
+            <a href={SITE.upstreamUrl} target="_blank" rel="noopener" className="underline">
+              {SITE.upstreamName}
+            </a>{" "}
+            を改変したものです（AGPL-3.0）。
+            <a href={SITE.sourceUrl} target="_blank" rel="noopener" className="underline">
+              ソースコード
+            </a>
           </p>
+          <p className="text-gray-600 text-xs leading-[1.5em]">{SITE.minecraftNotice}</p>
         </div>
       </div>
     </footer>

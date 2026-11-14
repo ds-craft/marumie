@@ -21,8 +21,8 @@ interface CashFlowSectionProps {
 }
 
 const TABS = [
-  { key: "friendly", label: "詳細の区分" },
-  { key: "political", label: "法律上の区分" },
+  { key: "friendly", label: "品目別" },
+  { key: "political", label: "区分別" },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];

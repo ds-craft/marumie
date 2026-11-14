@@ -7,7 +7,7 @@ const ANCHOR_LABELS = [
   "貸借対照表",
   "すべての出入金",
   "データについて",
-  "チームみらいについて",
+  "このサイトについて",
 ];
 
 function hrefOf(links: ReturnType<typeof getFooterTextLinks>, label: string) {
@@ -25,12 +25,12 @@ describe("getFooterTextLinks", () => {
       { label: "貸借対照表", href: "/o/sample-party/#balance-sheet" },
       { label: "すべての出入金", href: "/o/sample-party/#transactions" },
       { label: "データについて", href: "/o/sample-party/#explanation" },
-      { label: "チームみらいについて", href: "/o/sample-party/#about" },
+      { label: "このサイトについて", href: "/about" },
     ]);
   });
 
   it("/o/ 以外のページでは既定の政治団体を指す", () => {
-    expect(hrefOf(getFooterTextLinks("/terms"), "収支の流れ")).toBe("/o/team-mirai/#cash-flow");
+    expect(hrefOf(getFooterTextLinks("/terms"), "収支の流れ")).toBe("/o/ds-craft/#cash-flow");
   });
 
   it("調研費ページでは同じページ内のセクションを指す", () => {
@@ -40,7 +40,7 @@ describe("getFooterTextLinks", () => {
     expect(hrefOf(links, "月ごとの収支推移")).toBe("/p/sample-taro/2026/#monthly-trends");
     expect(hrefOf(links, "すべての出入金")).toBe("/p/sample-taro/2026/#transactions");
     expect(hrefOf(links, "データについて")).toBe("/p/sample-taro/2026/#explanation");
-    expect(hrefOf(links, "チームみらいについて")).toBe("/p/sample-taro/2026/#about");
+    expect(hrefOf(links, "このサイトについて")).toBe("/about");
   });
 
   it("調研費の全件ページでも、その調研費ページのセクションを指す", () => {
@@ -54,7 +54,7 @@ describe("getFooterTextLinks", () => {
     const links = getFooterTextLinks("/p/sample-taro/2026");
 
     expect(links.slice(0, 7).map((link) => link.label)).toEqual(ANCHOR_LABELS);
-    expect(hrefOf(links, "貸借対照表")).toBe("/o/team-mirai/#balance-sheet");
+    expect(hrefOf(links, "貸借対照表")).toBe("/o/ds-craft/#balance-sheet");
   });
 
   it("応援・規約などのリンクはページによらず同じ", () => {

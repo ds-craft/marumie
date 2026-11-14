@@ -1,4 +1,4 @@
-const FAQ_URL = "https://team-mirai.notion.site/FAQ-27ef6f56bae180c085e9f97d05a5d59c";
+import { SITE } from "@/shared/site-config";
 
 interface HeaderNavigationItem {
   href: string;
@@ -78,7 +78,8 @@ export function getHeaderNavigation(
     homeHref,
     items: [
       ...sections.map((section) => ({ ...section, href: `${homeHref}${section.href}` })),
-      { href: FAQ_URL, label: "よくあるご質問" },
+      // DSクラフト: 本家の「よくあるご質問」の代わりに公式サイトへのリンクを置く
+      { href: SITE.homeUrl, label: "DSクラフト公式サイト" },
     ],
   };
 }

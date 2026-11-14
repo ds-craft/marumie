@@ -1,6 +1,7 @@
 import { DEFAULT_PUBLIC_YEAR, PUBLIC_YEARS } from "@/shared/public-years";
 import "server-only";
 import { FEATURES } from "@/shared/features";
+import { SITE, pageTitle } from "@/shared/site-config";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import SiteBottomBlock from "@/client/components/common/SiteBottomBlock";
@@ -35,8 +36,8 @@ export async function generateMetadata({ params }: OrgPageProps): Promise<Metada
   const currentOrganization = organizations.find((org) => org.slug === slug);
 
   const title = currentOrganization?.displayName
-    ? `${currentOrganization.displayName} - みらいまる見え政治資金`
-    : "みらいまる見え政治資金";
+    ? pageTitle(currentOrganization.displayName)
+    : pageTitle();
 
   return {
     title,
@@ -65,7 +66,7 @@ export default async function OrgPage({ params }: OrgPageProps) {
 
   // 現在のslugに対応する組織を取得
   const currentOrganization = organizations.find((org) => org.slug === slug);
-  const organizationName = currentOrganization?.displayName || "未登録の政治団体";
+  const organizationName = currentOrganization?.displayName || "未登録の団体";
 
   // 統合アクションで全データを取得
   const data = await loadTopPageData({
@@ -100,7 +101,7 @@ export default async function OrgPage({ params }: OrgPageProps) {
         updatedAt={updatedAt}
         eyebrow={eyebrow}
       />
-      <TransparencySection title="党首もこれを見て、お金をやりくりしています👀" />
+      <TransparencySection title="鯖缶もこれを見て、お金をやりくりしています👀" />
       {FEATURES.balanceSheet && (
         <BalanceSheetSection
           data={data?.balanceSheetData}

@@ -10,7 +10,7 @@
  */
 
 /** ページタイトル（ブラウザタブの表示）の基本形。環境によらずこの文字列を含める。 */
-const BASE_PAGE_TITLE = "まる見え政治資金 - 管理画面";
+const BASE_PAGE_TITLE = "DSクラフト まる見え運営資金 - 管理画面";
 
 /** ステージングに割り当てている Vercel のカスタム環境名。 */
 const STAGING_TARGET_ENV = "staging";
