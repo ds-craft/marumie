@@ -1,3 +1,4 @@
+import { DEFAULT_PUBLIC_YEAR, PUBLIC_YEARS } from "@/shared/public-years";
 import "server-only";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
@@ -16,8 +17,8 @@ import { getBalanceSheetAsOf } from "@/client/lib/balance-sheet-heading";
 
 export const revalidate = 300; // 5 minutes
 
-const VALID_YEARS = [2025, 2026] as const;
-const DEFAULT_YEAR = 2026;
+const VALID_YEARS = PUBLIC_YEARS;
+const DEFAULT_YEAR = DEFAULT_PUBLIC_YEAR;
 
 interface OrgPageProps {
   params: Promise<{
@@ -46,9 +47,7 @@ export default async function OrgPage({ params }: OrgPageProps) {
 
   // 年度の妥当性をチェック
   const yearNumber = parseInt(yearParam, 10);
-  const financialYear = VALID_YEARS.includes(yearNumber as (typeof VALID_YEARS)[number])
-    ? yearNumber
-    : DEFAULT_YEAR;
+  const financialYear = VALID_YEARS.includes(yearNumber) ? yearNumber : DEFAULT_YEAR;
 
   // 年度が不正な場合はデフォルト年度にリダイレクト
   if (financialYear !== yearNumber) {

@@ -1,0 +1,5 @@
+id,date,amount_jpy,amount_foreign,currency,type,subcategory,item,payee,payment_source,period,evidence_level,evidence_id,evidence_sha256,public_note,private_note
+2023-001,2023-07-10,35000,,,expense,PC本体,サーバー用PC 1台目,サンプル通販,operator,p2,receipt,R-2023-001,0000000000000000000000000000000000000000000000000000000000000003,ミニPC,注文番号 123-456
+2023-002,2023-07-10,980,,,expense,ケーブル・小物,LANケーブル 3m,サンプル通販,operator,p2,statement,,,,
+2023-003,2023-09-01,880,5.83,USD,expense,ドメイン,ds2.uk 登録,サンプルレジストラ,operator,p2,statement,,,カード明細の円額,
+2023-004,2023-12-31,3000,,,expense,電気代,電気代（概算・12月分）,電力会社,family,p2,estimate,,,"消費電力 30W × 31日 から概算",サンプル町の家

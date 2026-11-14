@@ -1,3 +1,4 @@
+import { PUBLIC_YEARS } from "@/shared/public-years";
 import type { MetadataRoute } from "next";
 import { loadOrganizations } from "@/server/contexts/public-finance/presentation/loaders/load-organizations";
 import { loadPublishedResearchFundPages } from "@/server/contexts/research-fund/presentation/loaders/load-published-research-fund-pages";
@@ -10,7 +11,7 @@ export const dynamic = "force-static";
 export const revalidate = 3600;
 
 // 政治団体ページの年度切り替えで選べる年度（/o/[slug]/[year] の VALID_YEARS と揃える）
-const ORGANIZATION_YEARS = [2025, 2026] as const;
+const ORGANIZATION_YEARS = PUBLIC_YEARS;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.WEBAPP_URL || "https://marumie.team-mir.ai";

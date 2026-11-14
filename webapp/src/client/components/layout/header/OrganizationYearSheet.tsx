@@ -1,4 +1,5 @@
 "use client";
+import { DEFAULT_PUBLIC_YEAR, PUBLIC_YEARS } from "@/shared/public-years";
 import "client-only";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -10,8 +11,8 @@ import {
 import type { ResearchFundPoliticianEntry } from "@/server/contexts/research-fund/domain/models/research-fund-politician-list";
 import type { OrganizationsResponse } from "@/types/organization";
 
-const AVAILABLE_YEARS = [2025, 2026] as const;
-const DEFAULT_YEAR = 2026;
+const AVAILABLE_YEARS = PUBLIC_YEARS;
+const DEFAULT_YEAR = DEFAULT_PUBLIC_YEAR;
 
 interface OrganizationYearSheetProps {
   organizations: OrganizationsResponse;
@@ -50,7 +51,7 @@ export default function OrganizationYearSheet({
       }
       if (pathSegments[3]) {
         const yearFromPath = parseInt(pathSegments[3], 10);
-        if (AVAILABLE_YEARS.includes(yearFromPath as (typeof AVAILABLE_YEARS)[number])) {
+        if (AVAILABLE_YEARS.includes(yearFromPath)) {
           setCurrentYear(yearFromPath);
         }
       }

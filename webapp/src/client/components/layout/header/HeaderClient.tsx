@@ -1,4 +1,5 @@
 "use client";
+import { DEFAULT_PUBLIC_YEAR, PUBLIC_YEARS } from "@/shared/public-years";
 import "client-only";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,8 +9,8 @@ import { getHeaderNavigation } from "@/client/lib/header-navigation";
 import type { ResearchFundPoliticianEntry } from "@/server/contexts/research-fund/domain/models/research-fund-politician-list";
 import type { OrganizationsResponse } from "@/types/organization";
 
-const DEFAULT_YEAR = 2026;
-const AVAILABLE_YEARS = [2025, 2026];
+const DEFAULT_YEAR = DEFAULT_PUBLIC_YEAR;
+const AVAILABLE_YEARS = PUBLIC_YEARS;
 
 interface HeaderClientProps {
   organizations: OrganizationsResponse;

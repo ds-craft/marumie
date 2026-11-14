@@ -1,3 +1,4 @@
+import { PUBLIC_YEARS } from "@/shared/public-years";
 import "server-only";
 import HeaderClient from "@/client/components/layout/header/HeaderClient";
 import { loadOrganizations } from "@/server/contexts/public-finance/presentation/loaders/load-organizations";
@@ -5,7 +6,7 @@ import type { ResearchFundPoliticianEntry } from "@/server/contexts/research-fun
 import { loadResearchFundPoliticians } from "@/server/contexts/research-fund/presentation/loaders/load-research-fund-politicians";
 
 /** 組織セレクタに出す年度。`OrganizationYearSheet` の `AVAILABLE_YEARS` と揃える。 */
-const AVAILABLE_YEARS = [2025, 2026] as const;
+const AVAILABLE_YEARS = PUBLIC_YEARS;
 
 export default async function Header() {
   const [organizationsData, politicianLists] = await Promise.all([

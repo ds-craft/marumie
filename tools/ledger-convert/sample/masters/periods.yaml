@@ -1,0 +1,10 @@
+- key: p1
+  name: 第1期 VPS
+  start: 2022-11-11
+  end: 2023-06-30
+  description: サンプル
+- key: p2
+  name: 第2期 サーバー用PC
+  start: 2023-07-01
+  end: null
+  description: サンプル

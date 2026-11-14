@@ -35,6 +35,9 @@
     "depcruise:webapp": "depcruise webapp/src --config .dependency-cruiser.cjs",
     "check:usecase-shape": "node --test scripts/check-usecase-shape.test.mjs",
     "test:dependency-diff": "node --test scripts/dependency-diff.test.mjs",
+    "// Ledger": "==== DSクラフト台帳の変換 ====",
+    "ledger:convert": "tsx tools/ledger-convert/convert.ts",
+    "test:ledger": "tsx --test tools/ledger-convert/*.test.ts",
     "// Testing": "===========================================",
     "test": "pnpm test:admin && pnpm test:webapp",
     "test:admin": "pnpm --filter admin test",
@@ -85,7 +88,8 @@
     "simple-git-hooks": "^2.13.1",
     "supabase": "^3.0.0",
     "tsx": "^4.21.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "yaml": "2.9.1"
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged",
