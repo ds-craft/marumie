@@ -15,7 +15,7 @@ export const revalidate = 3600;
 const ORGANIZATION_YEARS = PUBLIC_YEARS;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.WEBAPP_URL || "https://marumie.team-mir.ai";
+  const baseUrl = process.env.WEBAPP_URL || "http://localhost:3000";
 
   // 組織データと調研費の公開ページを取得（0件の場合は空配列が返される）
   // 調研費を「公開しない」議員のページは loader が返さないので sitemap に載らない。

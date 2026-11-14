@@ -26,14 +26,14 @@ describe("isStagingTargetEnv", () => {
 
 describe("buildAdminPageTitle", () => {
   it("ステージングでは [stg] を前置する", () => {
-    expect(buildAdminPageTitle("staging")).toBe("[stg] まる見え政治資金 - 管理画面");
+    expect(buildAdminPageTitle("staging")).toBe("[stg] DSクラフト まる見え運営資金 - 管理画面");
   });
 
   it("本番では接頭辞を付けない", () => {
-    expect(buildAdminPageTitle("production")).toBe("まる見え政治資金 - 管理画面");
+    expect(buildAdminPageTitle("production")).toBe("DSクラフト まる見え運営資金 - 管理画面");
   });
 
   it("未設定（ローカル）では本番と同じタイトルになる", () => {
-    expect(buildAdminPageTitle(undefined)).toBe("まる見え政治資金 - 管理画面");
+    expect(buildAdminPageTitle(undefined)).toBe("DSクラフト まる見え運営資金 - 管理画面");
   });
 });

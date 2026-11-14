@@ -13,7 +13,7 @@ import { loadPublishedResearchFundPages } from "@/server/contexts/research-fund/
 const loadOrganizationsMock = loadOrganizations as jest.Mock;
 const loadPublishedResearchFundPagesMock = loadPublishedResearchFundPages as jest.Mock;
 
-const BASE_URL = process.env.WEBAPP_URL || "https://marumie.team-mir.ai";
+const BASE_URL = process.env.WEBAPP_URL || "http://localhost:3000";
 
 describe("sitemap", () => {
   beforeEach(() => {

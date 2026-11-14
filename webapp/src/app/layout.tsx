@@ -5,6 +5,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Footer from "@/client/components/layout/footer/Footer";
 import Header from "@/client/components/layout/header/Header";
+import { SITE } from "@/shared/site-config";
 
 // Noto Sans JP for Japanese text with proper weights
 const notoSansJP = Noto_Sans_JP({
@@ -24,17 +25,17 @@ const notoSans = Noto_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "みらい まる見え政治資金 - チームみらいの政治資金をオープンに",
-  description: "チームみらいの政治資金の流れを透明性を持って公開するプラットフォームです。",
+  title: `${SITE.name} - ${SITE.tagline}`,
+  description: SITE.description,
   openGraph: {
-    title: "みらい まる見え政治資金 - チームみらいの政治資金をオープンに",
-    description: "チームみらいの政治資金の流れを透明性を持って公開するプラットフォームです。",
+    title: `${SITE.name} - ${SITE.tagline}`,
+    description: SITE.description,
     images: [
       {
         url: "/social/og_image.png",
         width: 1200,
         height: 630,
-        alt: "みらい まる見え政治資金",
+        alt: SITE.name,
       },
     ],
     type: "website",
@@ -42,8 +43,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "みらい まる見え政治資金 - チームみらいの政治資金をオープンに",
-    description: "チームみらいの政治資金の流れを透明性を持って公開するプラットフォームです。",
+    title: `${SITE.name} - ${SITE.tagline}`,
+    description: SITE.description,
     images: ["/social/og_image.png"],
   },
 };

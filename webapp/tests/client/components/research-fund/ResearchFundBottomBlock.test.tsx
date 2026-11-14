@@ -21,7 +21,7 @@ describe("ResearchFundBottomBlock", () => {
   });
 
   it("共通の帯とカードも出す", () => {
-    expect(html).toContain("少しずつ進んでいますがまだまだです");
-    expect(html).toContain("よくあるご質問");
+    expect(html).toContain("まだ始めたばかりです");
+    expect(html).toContain("DSクラフトについて");
   });
 });

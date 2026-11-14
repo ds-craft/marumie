@@ -8,6 +8,7 @@ import OrganizationYearSheet from "@/client/components/layout/header/Organizatio
 import { getHeaderNavigation } from "@/client/lib/header-navigation";
 import type { ResearchFundPoliticianEntry } from "@/server/contexts/research-fund/domain/models/research-fund-politician-list";
 import type { OrganizationsResponse } from "@/types/organization";
+import { SITE } from "@/shared/site-config";
 
 const DEFAULT_YEAR = DEFAULT_PUBLIC_YEAR;
 const AVAILABLE_YEARS = PUBLIC_YEARS;
@@ -67,38 +68,17 @@ export default function HeaderClient({
             {/* Logo */}
             <div className="flex items-center">
               <div className="w-14 h-12 xl:w-12 xl:h-11 relative">
-                {/* Team Mirai Logo */}
-                <Image
-                  src="/logos/team-mirai-logo.svg"
-                  alt="Team Mirai Logo"
-                  fill
-                  className="object-contain"
-                />
+                <Image src={SITE.logo.src} alt={SITE.logo.alt} fill className="object-contain" />
               </div>
             </div>
 
             {/* Title and Subtitle - Mobile: Vertical Stack, Desktop: Horizontal with baseline alignment */}
             <div className="flex flex-col gap-1.5 2xl:flex-row 2xl:items-end 2xl:gap-2 min-w-0">
-              {/* SP用ロゴ (xl未満で表示) */}
-              <div className="h-[45px] relative w-[126px] xl:hidden">
-                <Image
-                  src="/logos/service-logo-sp.svg"
-                  alt="みらいまる見え政治資金"
-                  fill
-                  className="object-contain object-left"
-                  priority
-                />
-              </div>
-              {/* PC用ロゴ (xl以上で表示) */}
-              <div className="hidden xl:block h-7 relative w-[300px]">
-                <Image
-                  src="/logos/service-logo-pc.svg"
-                  alt="みらいまる見え政治資金"
-                  fill
-                  className="object-contain object-left"
-                  priority
-                />
-              </div>
+              {/* DSクラフト: 本家のロゴ画像（文字）の代わりにサイト名を文字で出す。SP は 2 行、PC は 1 行 */}
+              <span className="flex flex-col xl:flex-row xl:items-baseline xl:gap-2 font-black leading-tight text-black">
+                <span className="text-[13px] xl:text-[22px]">{SITE.communityShortName}</span>
+                <span className="text-[17px] xl:text-[22px]">まる見え運営資金</span>
+              </span>
             </div>
           </Link>
 

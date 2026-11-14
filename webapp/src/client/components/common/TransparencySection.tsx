@@ -5,23 +5,15 @@ interface TransparencySectionProps {
   title: string;
 }
 
+// DSクラフト: 文言は仮
 export default function TransparencySection({ title }: TransparencySectionProps) {
   return (
     <GradientMessageCard title={title}>
-      チームみらいに関わる政治資金の流れは、まるごとここに反映されています。
+      DSクラフトの運営にかかったお金は、台帳に記録したものをまるごとここに反映しています。
       <span className="hidden sm:inline">
         <br />
       </span>
-      私たちがなぜここまでオープンにするのか、 その理由は
-      <a
-        href="https://note.com/team_mirai_jp/n/n58fca6f9e4e8"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="font-bold underline hover:no-underline"
-      >
-        こちらのnote
-      </a>
-      をお読みください。
+      サーバー機材、VPS、ドメインなど、何にいくら使ったかを品目ごとに見られます。
     </GradientMessageCard>
   );
 }

@@ -560,8 +560,8 @@ const CustomLabelsLayer = ({ nodes }: { nodes: readonly SankeyNodeWithPosition[]
 
 export default function SankeyChart({
   data,
-  ariaLabel = "政治資金の収支フロー図",
-  ariaDescription = "政治資金の収入から支出へのお金の流れを示すサンキーダイアグラムです。",
+  ariaLabel = "運営資金の収支フロー図",
+  ariaDescription = "運営資金の収入から支出へのお金の流れを示すサンキーダイアグラムです。",
   compactEdgeLabels = false,
 }: SankeyChartProps) {
   const isMobile = useMobileDetection();

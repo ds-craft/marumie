@@ -12,7 +12,7 @@ describe("getHeaderNavigation", () => {
       "/o/team-mirai/2025/#transactions",
       "/o/team-mirai/2025/#research-fund",
       "/o/team-mirai/2025/#explanation",
-      "https://team-mirai.notion.site/FAQ-27ef6f56bae180c085e9f97d05a5d59c",
+      "https://www.ds2.uk/",
     ]);
   });
 
@@ -27,7 +27,7 @@ describe("getHeaderNavigation", () => {
       "貸借対照表",
       "すべての出入金",
       "データについて",
-      "よくあるご質問",
+      "DSクラフト公式サイト",
     ]);
   });
 
@@ -41,8 +41,8 @@ describe("getHeaderNavigation", () => {
       { href: "/p/sample-taro/2026/#transactions", label: "すべての出入金" },
       { href: "/p/sample-taro/2026/#explanation", label: "データについて" },
       {
-        href: "https://team-mirai.notion.site/FAQ-27ef6f56bae180c085e9f97d05a5d59c",
-        label: "よくあるご質問",
+        href: "https://www.ds2.uk/",
+        label: "DSクラフト公式サイト",
       },
     ]);
   });

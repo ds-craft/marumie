@@ -28,7 +28,7 @@ export default async function SetupPage({ searchParams }: SetupPageProps) {
     return (
       <PublicAuthCard
         title="アカウント設定"
-        description="「みらいまる見え政治資金」に招待されました。パスワードを設定して利用を開始してください。"
+        description="「DSクラフト まる見え運営資金」の管理画面に招待されました。パスワードを設定して利用を開始してください。"
       >
         <SetupForm userEmail={user.email} setupPasswordAction={setupPassword} />
       </PublicAuthCard>
