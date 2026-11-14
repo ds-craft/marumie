@@ -2,9 +2,14 @@
  * 使い方:
  *   pnpm ledger:convert -- --ledger ../ledger --out data/public
  *
- * --ledger  台帳リポジトリ（ds-craft/ledger）のパス
- * --out     出力先ディレクトリ（mf-journal.csv と ledger-public.csv を書く）
- * --check   検証だけ行い、ファイルは書かない
+ * --ledger       台帳リポジトリ（ds-craft/ledger）のパス
+ * --out          出力先ディレクトリ（mf-journal.csv と ledger-public.csv を書く）
+ * --check        検証だけ行い、ファイルは書かない
+ * --private-dir  private_words.txt のあるフォルダ（既定: 環境変数 LEDGER_PRIVATE_DIR）
+ *
+ * private_words.txt（公開してはいけない語）は語そのものが個人情報なので、台帳リポジトリの外に置く。
+ * 探す順: --private-dir → LEDGER_PRIVATE_DIR → {ledger}/masters/private_words.txt（サンプル台帳用）。
+ * 見つからないとき、出力するならエラーで止める（検査なしで公開データを作らない）。--check なら警告だけ。
  */
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -28,6 +33,7 @@ function arg(name: string): string | undefined {
 const ledgerDir = arg("ledger") ?? "../ledger";
 const outDir = arg("out") ?? "data/public";
 const checkOnly = process.argv.includes("--check");
+const privateDir = arg("private-dir") ?? process.env.LEDGER_PRIVATE_DIR;
 
 /** YAML の日付・null・TODO を文字列か null にそろえる */
 function normDate(v: unknown): string | null {
@@ -36,7 +42,18 @@ function normDate(v: unknown): string | null {
   return String(v);
 }
 
-function loadMasters(dir: string): Masters {
+/** private_words.txt のパス。指定された場所に無いのは設定の誤りなのでエラーにする */
+function findPrivateWords(dir: string): { path?: string; error?: string } {
+  if (privateDir) {
+    const p = join(privateDir, "private_words.txt");
+    return existsSync(p) ? { path: p } : { error: `${p} がありません（--private-dir / LEDGER_PRIVATE_DIR を確認してください）` };
+  }
+  const fallback = join(dir, "masters/private_words.txt");
+  if (existsSync(fallback)) return { path: fallback };
+  return { error: "private_words.txt が見つかりません。--private-dir か環境変数 LEDGER_PRIVATE_DIR で場所を指定してください" };
+}
+
+function loadMasters(dir: string, wordsPath: string | undefined): Masters {
   const ps = parseYaml(readFileSync(join(dir, "masters/payment_sources.yaml"), "utf8")) as Record<string, PaymentSource>;
   const periodsRaw = parseYaml(readFileSync(join(dir, "masters/periods.yaml"), "utf8")) as Array<Record<string, unknown>>;
   const periods: Period[] = periodsRaw.map((p) => ({
@@ -44,8 +61,7 @@ function loadMasters(dir: string): Masters {
     name: String(p.name),
     start: normDate(p.start),
   }));
-  const wordsPath = join(dir, "masters/private_words.txt");
-  const privateWords = existsSync(wordsPath)
+  const privateWords = wordsPath
     ? readFileSync(wordsPath, "utf8")
         .split(/\r?\n/)
         .map((l) => l.trim())
@@ -55,7 +71,14 @@ function loadMasters(dir: string): Masters {
 }
 
 function main() {
-  const masters = loadMasters(ledgerDir);
+  const words = findPrivateWords(ledgerDir);
+  if (words.error && !checkOnly) {
+    console.error(`エラー: ${words.error}`);
+    console.error("非公開の語の検査ができないため出力しません");
+    process.exit(1);
+  }
+  if (words.error) console.warn(`警告: ${words.error}（非公開の語の検査を飛ばします）`);
+  const masters = loadMasters(ledgerDir, words.path);
   const ledgerPath = join(ledgerDir, "ledger");
   const csvFiles = readdirSync(ledgerPath)
     .filter((f) => /^\d{4}\.csv$/.test(f))

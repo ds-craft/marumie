@@ -8,6 +8,11 @@ pnpm ledger:convert --ledger ../ledger --check             # 検証だけ
 pnpm test:ds                                                # テスト
 ```
 
+`private_words.txt`（公開してはいけない語）は語そのものが個人情報なので、台帳リポジトリの外に置き、
+`--private-dir <フォルダ>` か環境変数 `LEDGER_PRIVATE_DIR` で場所を渡す。
+どちらも無ければ台帳の `masters/private_words.txt` を使う（サンプル台帳用）。
+見つからないとき、出力するならエラーで止まり、`--check` なら警告を出して検査を飛ばす。
+
 出力:
 
 | ファイル | 用途 |
@@ -31,7 +36,7 @@ pnpm public:import --dir <dir>     # 別のディレクトリから
 `main` に push すると、GitHub Actions（`.github/workflows/pages.yml`）が使い捨ての DB に `data/public` を取り込み、
 webapp を静的に書き出して GitHub Pages（https://marumie.ds2.uk）に公開する。
 
-1. `pnpm ledger:convert --ledger ../ledger --out data/public`（`private_words.txt` の検査もここで行われる）
+1. `LEDGER_PRIVATE_DIR=<語リストのフォルダ> pnpm ledger:convert --ledger ../ledger --out data/public`（`private_words.txt` の検査もここで行われる）
 2. 手元で確かめる：`pnpm public:import` → `pnpm dev`（または `pnpm build:site` で `webapp/out` に書き出す）
 3. `data/public/` の変更をコミットして PR → マージすると公開される
 
