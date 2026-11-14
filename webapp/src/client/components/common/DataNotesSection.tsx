@@ -1,4 +1,5 @@
 import "server-only";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { SITE } from "@/shared/site-config";
 
@@ -42,6 +43,18 @@ const NOTES: DataNote[] = [
   {
     title: "データの出典と範囲",
     body: "本サイトの収支データは、運営者が管理している台帳から作成しています。対象は、鯖缶を始めた2022年11月11日以降に、DSクラフトのために新たに購入・契約したもの（サーバー機材、VPS、ドメインなど）です。運営者が負担した費用は、返済を受けない持ち出しとして「運営者拠出」の収入にも計上しています。",
+  },
+  {
+    title: "公開台帳と証憑",
+    body: (
+      <>
+        収支の元になった台帳の各行と、個人情報を黒塗りした証憑（領収書・請求書）、そのハッシュ値を
+        <Link href="/ledger/" className={DATA_NOTE_LINK_CLASS}>
+          公開台帳と証憑
+        </Link>
+        のページで公開しています。取引の一覧の各行からも、その行の証憑を開けます。
+      </>
+    ),
   },
   {
     title: "計上していないもの",

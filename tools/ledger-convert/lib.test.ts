@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { type LedgerRow, type Masters, convertLedger, parseCsv, parseLedgerCsv, toCsv } from "./lib";
+import { parseCsv, toCsv } from "../../shared/csv";
+import { type LedgerRow, type Masters, attachEvidenceFiles, convertLedger, parseLedgerCsv } from "./lib";
 
 const masters: Masters = {
   paymentSources: {
@@ -153,4 +154,36 @@ test("台帳 CSV の列の過不足を検出する", () => {
   const { errors } = parseLedgerCsv("ledger/2023.csv", "id,date,foo\n2023-001,2023-01-01,x\n");
   assert.match(errors.join(), /列がありません/);
   assert.match(errors.join(), /知らない列/);
+});
+
+test("証憑ファイル: 証憑ID で探し、公開名は「証憑ID + 拡張子」。同じ証憑を使う行は同じファイルを指す", () => {
+  const h = "a".repeat(64);
+  const ev = (id: string, eid: string, hash = h) =>
+    row({ id, evidence_level: "receipt", evidence_id: eid, evidence_sha256: "b".repeat(64), evidence_redacted_sha256: hash });
+  const r = run([ev("2023-001", "R-2023-001"), ev("2023-002", "R-2023-001"), ev("2023-003", "R-2023-002", "c".repeat(64)), row({ id: "2023-004" })]);
+  assert.deepEqual(r.errors, []);
+  const { copies, errors } = attachEvidenceFiles(r.publicRows, ["R-2023-001_20230710_サンプル.PDF", "R-2023-002.jpg", "R-2023-0010_x.pdf"]);
+  assert.deepEqual(errors, []);
+  assert.deepEqual(
+    copies.map((c) => [c.source, c.target]),
+    [
+      ["R-2023-001_20230710_サンプル.PDF", "R-2023-001.pdf"],
+      ["R-2023-002.jpg", "R-2023-002.jpg"],
+    ],
+  );
+  assert.deepEqual(
+    r.publicRows.map((p) => p.evidence_file),
+    ["R-2023-001.pdf", "R-2023-001.pdf", "R-2023-002.jpg", ""],
+  );
+});
+
+test("証憑ファイル: 無い・複数ある・公開できない形式・同じ証憑でハッシュ値が違うとエラー", () => {
+  const h = "a".repeat(64);
+  const ev = (id: string, eid: string, hash = h) =>
+    row({ id, evidence_level: "receipt", evidence_id: eid, evidence_redacted_sha256: hash });
+  const errs = (rows: LedgerRow[], files: string[]) => attachEvidenceFiles(run(rows).publicRows, files).errors.join();
+  assert.match(errs([ev("2023-001", "R-2023-001")], []), /ありません/);
+  assert.match(errs([ev("2023-001", "R-2023-001")], ["R-2023-001_a.pdf", "R-2023-001_b.pdf"]), /複数/);
+  assert.match(errs([ev("2023-001", "R-2023-001")], ["R-2023-001_a.eml"]), /形式/);
+  assert.match(errs([ev("2023-001", "R-2023-001"), ev("2023-002", "R-2023-001", "d".repeat(64))], ["R-2023-001.pdf"]), /ハッシュ値が違います/);
 });

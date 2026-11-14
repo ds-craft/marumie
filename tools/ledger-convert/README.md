@@ -3,8 +3,8 @@
 非公開の台帳リポジトリ（ds-craft/ledger）を検証し、公開用のファイルに変換する。
 
 ```bash
-pnpm ledger:convert --ledger ../ledger --out data/public   # 変換
-pnpm ledger:convert --ledger ../ledger --check             # 検証だけ
+pnpm ledger:convert --ledger ../ledger --evidence <黒塗りした証憑のフォルダ> --out data/public   # 変換
+pnpm ledger:convert --ledger ../ledger --check                                                 # 検証だけ
 pnpm test:ds                                                # テスト
 ```
 
@@ -13,12 +13,29 @@ pnpm test:ds                                                # テスト
 どちらも無ければ台帳の `masters/private_words.txt` を使う（サンプル台帳用）。
 見つからないとき、出力するならエラーで止まり、`--check` なら警告を出して検査を飛ばす。
 
+黒塗りした証憑のフォルダ（台帳リポジトリの `tools/redact_evidence.py` の出力先）は `--evidence <フォルダ>` か環境変数 `LEDGER_EVIDENCE_DIR` で渡す。
+黒塗り版のハッシュ値（`evidence_redacted_sha256`）がある行ごとに、フォルダから「証憑ID_….拡張子」のファイルを探してハッシュ値を照合し、
+一致したものを `evidence/{証憑ID}.{拡張子}` として書き出す（日付・取引先はファイル名に出さない）。
+ファイルが無い・複数ある・ハッシュ値が違うとエラーで止まる。フォルダを渡さないとき、出力するならエラー、`--check` なら警告を出して照合を飛ばす。
+
 出力:
 
 | ファイル | 用途 |
 |---|---|
 | `mf-journal.csv` | MF仕訳帳形式。`pnpm public:import` で DB に入れる（admin の「CSVアップロード」でも取り込める） |
-| `ledger-public.csv` | 公開してよい列だけの台帳（証憑ID・原本と黒塗り版のハッシュ値・確度・時期つき） |
+| `ledger-public.csv` | 公開してよい列だけの台帳（証憑ID・原本と黒塗り版のハッシュ値・公開している証憑のファイル名・確度・時期つき） |
+| `evidence/R-YYYY-NNN.pdf` など | 黒塗りした証憑。ハッシュ値は台帳の `evidence_redacted_sha256` と一致する |
+
+## サイトへの配置
+
+```bash
+pnpm public:stage                        # data/public の ledger-public.csv と evidence/ を webapp/public/evidence に置く
+PUBLIC_DATA_DIR=<dir> pnpm public:stage  # 別のディレクトリから
+```
+
+- `pnpm build:site` が毎回呼ぶので、ビルドするときは不要。`pnpm dev` で確かめるときだけ先に実行する
+- サイトでは `/evidence/ledger-public.csv`・`/evidence/R-YYYY-NNN.pdf` として配られる。取引一覧の各行から証憑と公開台帳の行（`/ledger/`）にリンクする
+- `webapp/public/evidence/` は毎回作り直し、Git には入れない。公開台帳にある証憑ファイルが無い・ハッシュ値が違うとエラーで止まる
 
 ## DB への取り込み
 
@@ -36,8 +53,8 @@ pnpm public:import --dir <dir>     # 別のディレクトリから
 `main` に push すると、GitHub Actions（`.github/workflows/pages.yml`）が使い捨ての DB に `data/public` を取り込み、
 webapp を静的に書き出して GitHub Pages（https://marumie.ds2.uk）に公開する。
 
-1. `LEDGER_PRIVATE_DIR=<語リストのフォルダ> pnpm ledger:convert --ledger ../ledger --out data/public`（`private_words.txt` の検査もここで行われる）
-2. 手元で確かめる：`pnpm public:import` → `pnpm dev`（または `pnpm build:site` で `webapp/out` に書き出す）
+1. `LEDGER_PRIVATE_DIR=<語リストのフォルダ> pnpm ledger:convert --ledger ../ledger --evidence <黒塗りした証憑のフォルダ> --out data/public`（`private_words.txt` の検査・証憑の照合もここで行われる）
+2. 手元で確かめる：`pnpm public:import` → `pnpm public:stage` → `pnpm dev`（または `pnpm build:site` で `webapp/out` に書き出す）
 3. `data/public/` の変更をコミットして PR → マージすると公開される
 
 `data/public/mf-journal.csv` がまだないうちは、サンプル台帳でビルドだけして公開しない。

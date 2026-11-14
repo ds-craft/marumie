@@ -4,6 +4,7 @@ name: Pages
 #
 # 使い捨ての Postgres に data/public の団体の設定と仕訳 CSV を入れ（pnpm public:import）、
 # webapp を静的に書き出して（pnpm build:site）、webapp/out を Pages に公開する。
+# 公開台帳（ledger-public.csv）と黒塗りした証憑（evidence/）は、build:site が webapp/public/evidence に置いてから書き出す。
 #
 # - main への push：ビルドして公開する。ただし data/public/mf-journal.csv がまだなければ、ビルドだけして公開しない
 # - PR：静的に書き出せるかだけを確かめる（公開しない）
@@ -110,6 +111,7 @@ jobs:
         run: pnpm build:site
         env:
           WEBAPP_URL: ${{ env.SITE_URL }}
+          PUBLIC_DATA_DIR: ${{ steps.data.outputs.dir }}
 
       - name: Upload Pages artifact
         if: steps.data.outputs.publish == 'true'

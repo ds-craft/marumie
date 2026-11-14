@@ -16,6 +16,7 @@ import {
   GetTransactionsBySlugUsecase,
 } from "@/server/contexts/public-finance/application/usecases/get-transactions-by-slug-usecase";
 import { CACHE_REVALIDATE_SECONDS } from "./constants";
+import { attachEvidence } from "./load-public-ledger";
 
 interface TopPageDataParams extends Omit<GetTransactionsBySlugParams, "financialYear"> {
   financialYear: number; // 必須項目として設定
@@ -90,7 +91,11 @@ export const loadTopPageData = unstable_cache(
     ]);
 
     return {
-      transactionData,
+      // DSクラフト: 各行に台帳の証憑を付ける
+      transactionData: {
+        ...transactionData,
+        transactions: await attachEvidence(transactionData.transactions),
+      },
       monthlyData: monthlyData.monthlyData,
       political: sankeyPoliticalCategoryData.sankeyData,
       friendly: sankeyFriendlyCategoryData.sankeyData,
