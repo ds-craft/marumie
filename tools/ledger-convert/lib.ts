@@ -29,10 +29,10 @@ export const LEDGER_COLUMNS = [
   "item",
   "payee",
   "payment_source",
-  "period",
   "evidence_level",
   "evidence_id",
   "evidence_sha256",
+  "evidence_redacted_sha256",
   "public_note",
   "private_note",
 ] as const;
@@ -55,6 +55,7 @@ export const PUBLIC_COLUMNS = [
   "evidence_level",
   "evidence_id",
   "evidence_sha256",
+  "evidence_redacted_sha256",
   "public_note",
 ] as const;
 
@@ -92,11 +93,14 @@ export interface PaymentSource {
   contribution_account: string;
 }
 
+/**
+ * サーバー構成の時期。終わりは持たず、次の時期の start の前日までとする。
+ * 台帳の各行の時期は支払日から自動で決める（start が支払日以前で最も新しい時期）
+ */
 export interface Period {
   key: string;
   name: string;
   start: string | null;
-  end: string | null;
 }
 
 export interface Masters {
@@ -178,7 +182,9 @@ export function parseLedgerCsv(path: string, text: string): { file: LedgerFile; 
   const missing = LEDGER_COLUMNS.filter((c) => !cols.includes(c));
   const unknown = cols.filter((c) => !(LEDGER_COLUMNS as readonly string[]).includes(c));
   if (missing.length) errors.push(`${path}: 列がありません: ${missing.join(", ")}`);
-  if (unknown.length) errors.push(`${path}: 知らない列があります: ${unknown.join(", ")}`);
+  if (unknown.includes("period")) errors.push(`${path}: period 列は不要です（時期は支払日から自動で決まる）。列を消してください`);
+  const others = unknown.filter((c) => c !== "period");
+  if (others.length) errors.push(`${path}: 知らない列があります: ${others.join(", ")}`);
   const rows = body.map((values) => {
     const row = {} as LedgerRow;
     for (const c of LEDGER_COLUMNS) {
@@ -232,9 +238,14 @@ export function convertLedger(files: LedgerFile[], masters: Masters): ConvertRes
   const mfRows: MfRow[] = [];
   const publicRows: PublicRow[] = [];
   const seenIds = new Map<string, string>();
-  const periodByKey = new Map(masters.periods.map((p) => [p.key, p]));
-  const knownStarts = masters.periods.map((p) => p.start).filter((s): s is string => !!s && isIsoDate(s));
-  const earliest = knownStarts.sort()[0];
+  const periods = [...masters.periods].sort((a, b) => (a.start ?? "").localeCompare(b.start ?? ""));
+  for (const [i, p] of periods.entries()) {
+    if (!p.start || !isIsoDate(p.start)) errors.push(`periods.yaml: ${p.key} の start は YYYY-MM-DD の形にしてください: "${p.start ?? ""}"`);
+    else if (i > 0 && periods[i - 1].start === p.start) errors.push(`periods.yaml: ${periods[i - 1].key} と ${p.key} の start が同じです`);
+  }
+  const earliest = periods[0]?.start ?? undefined;
+  /** 支払日の時期: start が支払日以前で最も新しいもの */
+  const periodOf = (date: string) => periods.findLast((p) => !!p.start && p.start <= date);
 
   for (const [key, src] of Object.entries(masters.paymentSources)) {
     const m = PL_CATEGORIES[src.contribution_account];
@@ -285,18 +296,15 @@ export function convertLedger(files: LedgerFile[], masters: Masters): ConvertRes
       if (r.type === "expense" && !src) err(`payment_source「${r.payment_source}」は payment_sources.yaml にありません`);
       if (r.type === "income" && r.payment_source && !src) err(`payment_source「${r.payment_source}」は payment_sources.yaml にありません`);
 
-      // 時期
-      const period = periodByKey.get(r.period);
-      if (!period) err(`period「${r.period}」は periods.yaml にありません`);
-      else if (isIsoDate(r.date)) {
-        if (period.start && isIsoDate(period.start) && r.date < period.start) warnings.push(`${where}: ${r.date} は ${period.key}（${period.start}〜）の開始より前です`);
-        if (period.end && isIsoDate(period.end) && r.date > period.end) warnings.push(`${where}: ${r.date} は ${period.key}（〜${period.end}）の終了より後です`);
-      }
+      // 時期（支払日から決める。対象期間より前の日付は上でエラーにしている）
+      const period = isIsoDate(r.date) ? periodOf(r.date) : undefined;
 
       // 証憑
       if (!(EVIDENCE_LEVELS as readonly string[]).includes(r.evidence_level)) err(`evidence_level は ${EVIDENCE_LEVELS.join(" / ")} のどれかにしてください: "${r.evidence_level}"`);
       if (r.evidence_id && !/^R-\d{4}-\d{3,}$/.test(r.evidence_id)) err(`evidence_id は R-YYYY-NNN の形にしてください: "${r.evidence_id}"`);
       if (r.evidence_sha256 && !/^[0-9a-f]{64}$/.test(r.evidence_sha256)) err(`evidence_sha256 は 64 桁の 16 進数（小文字）にしてください`);
+      if (r.evidence_redacted_sha256 && !/^[0-9a-f]{64}$/.test(r.evidence_redacted_sha256)) err(`evidence_redacted_sha256 は 64 桁の 16 進数（小文字）にしてください`);
+      if (r.evidence_redacted_sha256 && !r.evidence_id) err(`evidence_redacted_sha256 があるのに evidence_id が空です`);
       if (r.evidence_level === "receipt" && !r.evidence_id) err(`evidence_level=receipt なのに evidence_id が空です`);
       if (r.evidence_level === "receipt" && r.evidence_id && !r.evidence_sha256) warnings.push(`${where}: evidence_sha256 が空です`);
 
@@ -319,11 +327,12 @@ export function convertLedger(files: LedgerFile[], masters: Masters): ConvertRes
         item: r.item,
         payee: r.payee,
         funded_by: fundedBy,
-        period: r.period,
+        period: period?.key ?? "",
         period_name: period?.name ?? "",
         evidence_level: r.evidence_level,
         evidence_id: r.evidence_id,
         evidence_sha256: r.evidence_sha256,
+        evidence_redacted_sha256: r.evidence_redacted_sha256,
         public_note: r.public_note,
       };
 
