@@ -25,6 +25,10 @@ import { MfCsvLoader } from "@/server/contexts/data-import/infrastructure/mf/mf-
 import { MfRecordConverter } from "@/server/contexts/data-import/infrastructure/mf/mf-record-converter";
 import { PrismaTransactionRepository } from "@/server/contexts/shared/infrastructure/repositories/prisma-transaction.repository";
 
+// CSV の日付（2022/11/11）は実行環境のタイムゾーンの 0 時として読まれ、DB の date 型には UTC の日付で入る。
+// 日本時間で動かすと前の日になってしまうので、どこで動かしても同じになるよう UTC に固定する（admin を動かす Vercel も UTC）
+process.env.TZ = "UTC";
+
 function parseArgs(argv: string[]): { dir: string } {
   const i = argv.indexOf("--dir");
   const dir = i >= 0 ? argv[i + 1] : undefined;
