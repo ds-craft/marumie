@@ -17,6 +17,9 @@ export const SITE = {
   /** 運営主体（ポータルの著作権表示と揃える） */
   operatorName: "3DS半分こするくらい仲良しクラフト中央委員会",
 
+  /** お問い合わせ先のメールアドレス（Discord サーバーは招待制なので、リンクは載せない） */
+  contactEmail: "contact@ds2.uk",
+
   /** DSクラフトの公式サイト */
   homeUrl: "https://www.ds2.uk/",
   /** このサイトのソースコード（AGPL-3.0 によりソースを入手できるようにする） */
