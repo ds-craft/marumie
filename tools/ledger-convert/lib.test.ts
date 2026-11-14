@@ -6,7 +6,10 @@ const masters: Masters = {
   paymentSources: {
     operator: { public_label: "運営者拠出", contribution_account: "運営者拠出" },
   },
-  periods: [{ key: "p1", name: "第1期", start: "2022-11-11", end: null }],
+  periods: [
+    { key: "p2", name: "第2期", start: "2023-07-01" },
+    { key: "p1", name: "第1期", start: "2022-11-11" },
+  ],
   privateWords: ["サンプル町"],
 };
 
@@ -22,10 +25,10 @@ function row(overrides: Partial<LedgerRow> = {}): LedgerRow {
     item: "サーバー用PC 1台目",
     payee: "サンプル通販",
     payment_source: "operator",
-    period: "p1",
     evidence_level: "statement",
     evidence_id: "",
     evidence_sha256: "",
+    evidence_redacted_sha256: "",
     public_note: "",
     private_note: "注文番号 123",
     ...overrides,
@@ -94,6 +97,50 @@ test("証憑あり（receipt）は証憑ID が必須、ハッシュ値がなけ�
   const r = run([row({ evidence_level: "receipt", evidence_id: "R-2023-001" })]);
   assert.deepEqual(r.errors, []);
   assert.match(r.warnings.join(), /sha256/);
+});
+
+test("時期は支払日から決まる（start が支払日以前で最も新しい時期。periods.yaml の並び順に依らない）", () => {
+  const r = run([
+    row({ id: "2023-001", date: "2023-06-30" }),
+    row({ id: "2023-002", date: "2023-07-01" }),
+    row({ id: "2023-003", date: "2023-12-31" }),
+  ]);
+  assert.deepEqual(r.errors, []);
+  assert.deepEqual(
+    r.publicRows.map((p) => [p.period, p.period_name]),
+    [
+      ["p1", "第1期"],
+      ["p2", "第2期"],
+      ["p2", "第2期"],
+    ],
+  );
+});
+
+test("periods.yaml の start が日付でない・重複しているとエラー", () => {
+  const bad = (periods: Masters["periods"]) => convertLedger([{ path: "ledger/2023.csv", rows: [row()] }], { ...masters, periods }).errors.join();
+  assert.match(bad([{ key: "p1", name: "第1期", start: "TODO" }]), /start は YYYY-MM-DD/);
+  assert.match(
+    bad([
+      { key: "p1", name: "第1期", start: "2022-11-11" },
+      { key: "p2", name: "第2期", start: "2022-11-11" },
+    ]),
+    /start が同じ/,
+  );
+});
+
+test("黒塗り版のハッシュ値は公開用台帳に出る。形式違い・証憑ID なしはエラー", () => {
+  const h = "a".repeat(64);
+  const ok = run([row({ evidence_level: "receipt", evidence_id: "R-2023-001", evidence_sha256: "b".repeat(64), evidence_redacted_sha256: h })]);
+  assert.deepEqual(ok.errors, []);
+  assert.equal(ok.publicRows[0].evidence_redacted_sha256, h);
+  assert.match(run([row({ evidence_id: "R-2023-001", evidence_redacted_sha256: "xyz" })]).errors.join(), /evidence_redacted_sha256 は 64 桁/);
+  assert.match(run([row({ evidence_redacted_sha256: h })]).errors.join(), /evidence_id が空/);
+});
+
+test("台帳に period 列があると、不要になったことを伝えるエラー", () => {
+  const { errors } = parseLedgerCsv("ledger/2023.csv", "id,period\n2023-001,p1\n");
+  assert.match(errors.join(), /period 列は不要/);
+  assert.doesNotMatch(errors.join(), /知らない列/);
 });
 
 test("CSV の読み書きでカンマ・引用符・改行を保つ", () => {

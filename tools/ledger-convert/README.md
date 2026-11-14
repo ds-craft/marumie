@@ -13,7 +13,7 @@ pnpm test:ds                                                # テスト
 | ファイル | 用途 |
 |---|---|
 | `mf-journal.csv` | MF仕訳帳形式。`pnpm public:import` で DB に入れる（admin の「CSVアップロード」でも取り込める） |
-| `ledger-public.csv` | 公開してよい列だけの台帳（証憑ID・ハッシュ値・確度・時期つき） |
+| `ledger-public.csv` | 公開してよい列だけの台帳（証憑ID・原本と黒塗り版のハッシュ値・確度・時期つき） |
 
 ## DB への取り込み
 
@@ -54,8 +54,12 @@ marumie の取り込み処理は「現金類 ↔ 収入・支出科目」の組�
 
 - 列の過不足、id（`YYYY-NNN`）の形式と重複、日付の形式、ファイルの年と支払日の年の一致
 - 対象期間（periods.yaml の最初の開始日）より前の日付
+- periods.yaml の開始日の形式と重複
 - 小分類が `shared/accounting/account-category.ts` にあるか、収入・支出の向きが合っているか
-- 支払元・時期がマスタにあるか、証憑の形式（receipt なら証憑ID 必須、ハッシュ値がなければ警告）
+- 支払元がマスタにあるか、証憑の形式（receipt なら証憑ID 必須、ハッシュ値がなければ警告。黒塗り版のハッシュ値は証憑ID とセット）
+
+時期（`period`・`period_name`）は台帳に書かず、支払日から決める。periods.yaml の `start` が支払日以前で最も新しい時期になる
+（終わりは次の時期の `start` の前日）。
 - 公開される列に `private_words.txt` の語（地名・家族など）が含まれていないか
 
 公開用台帳は `PUBLIC_COLUMNS` に挙げた列だけを出力する。`private_note` などは出力されない。

@@ -43,7 +43,6 @@ function loadMasters(dir: string): Masters {
     key: String(p.key),
     name: String(p.name),
     start: normDate(p.start),
-    end: normDate(p.end),
   }));
   const wordsPath = join(dir, "masters/private_words.txt");
   const privateWords = existsSync(wordsPath)
