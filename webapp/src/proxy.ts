@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getMaintenanceHtml } from "@/client/templates/maintenance-html";
+import { WEBAPP_DISABLED_PATH_PREFIXES, isDisabledPath } from "@/shared/features";
 
 async function hashCredentials(credentials: string): Promise<string> {
   const encoder = new TextEncoder();
@@ -24,6 +25,11 @@ export async function proxy(request: NextRequest) {
         "Cache-Control": "no-store, no-cache, must-revalidate",
       },
     });
+  }
+
+  // DSクラフトで使わない機能（shared/features.ts）のページは 404 にする
+  if (isDisabledPath(request.nextUrl.pathname, WEBAPP_DISABLED_PATH_PREFIXES)) {
+    return new NextResponse("Not Found", { status: 404 });
   }
 
   const basicAuthSecret = process.env.BASIC_AUTH_SECRET;

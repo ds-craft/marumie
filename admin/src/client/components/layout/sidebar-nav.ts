@@ -1,5 +1,6 @@
 import type { AdminTarget } from "@/server/contexts/shared/domain/models/admin-target";
 import { type UserRole, UserRoleModel } from "@/server/contexts/auth/domain/models/user-role";
+import { FEATURES, type FeatureName } from "@/shared/features";
 
 /**
  * サイドバーの nav 項目に使う Phosphor アイコンの識別子。
@@ -30,6 +31,8 @@ type NavItem = {
   role: UserRole;
   /** 同期用インポートが有効な環境（非本番 かつ DATA_SYNC_IMPORT_ENABLED=true）でのみ表示する */
   syncImportOnly?: boolean;
+  /** この機能が有効なとき（shared/features.ts）だけ表示する */
+  feature?: FeatureName;
   badge?: number;
 };
 
@@ -45,7 +48,13 @@ const TARGET_MANAGEMENT_SECTION: NavSection = {
   title: "対象の管理",
   items: [
     { href: "/political-organizations", label: "政治団体", icon: "bank", role: "political_fund" },
-    { href: "/politicians", label: "議員", icon: "user", role: "research_fund" },
+    {
+      href: "/politicians",
+      label: "議員",
+      icon: "user",
+      role: "research_fund",
+      feature: "politicians",
+    },
     { href: "/users", label: "ユーザー管理", icon: "users", role: "admin" },
   ],
 };
@@ -79,20 +88,35 @@ const ORGANIZATION_SECTIONS: NavSection[] = [
         label: "取引先マスタ",
         icon: "address-book",
         role: "political_fund",
+        feature: "politicalReport",
       },
-      { href: "/assign/counterparts", label: "取引先紐付け", icon: "link", role: "political_fund" },
-      { href: "/donors", label: "寄付者マスタ", icon: "hand-heart", role: "political_fund" },
+      {
+        href: "/assign/counterparts",
+        label: "取引先紐付け",
+        icon: "link",
+        role: "political_fund",
+        feature: "politicalReport",
+      },
+      {
+        href: "/donors",
+        label: "寄付者マスタ",
+        icon: "hand-heart",
+        role: "political_fund",
+        feature: "politicalReport",
+      },
       {
         href: "/assign/donors",
         label: "寄付者紐付け",
         icon: "link-simple",
         role: "political_fund",
+        feature: "politicalReport",
       },
       {
         href: "/export-report",
         label: "報告書エクスポート",
         icon: "export",
         role: "political_fund",
+        feature: "politicalReport",
       },
     ],
   },
@@ -115,6 +139,8 @@ const ORGANIZATION_SECTIONS: NavSection[] = [
 type NavEnvironment = {
   /** 同期用インポートが利用できる環境か（既定は不可。本番では必ず false） */
   syncImportEnabled?: boolean;
+  /** 機能の有効・無効（既定は shared/features.ts の FEATURES。テストで差し替える） */
+  features?: Record<FeatureName, boolean>;
 };
 
 /**
@@ -204,7 +230,8 @@ export function getVisibleNavSections(
       items: section.items.filter(
         (item) =>
           UserRoleModel.canUse(userRoles, [item.role]) &&
-          (!item.syncImportOnly || environment.syncImportEnabled === true),
+          (!item.syncImportOnly || environment.syncImportEnabled === true) &&
+          (!item.feature || (environment.features ?? FEATURES)[item.feature]),
       ),
     }))
     .filter((section) => section.items.length > 0);

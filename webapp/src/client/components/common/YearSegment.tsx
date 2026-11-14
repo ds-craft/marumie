@@ -6,7 +6,7 @@ interface YearSegmentProps {
   currentYear: number;
 }
 
-/** 見出しカードの右下に置く、年の切り替え（2025／2026）。年ごとのページへのリンクで切り替える。 */
+/** 見出しカードの右下に置く、年の切り替え（shared/public-years.ts の年）。年ごとのページへのリンクで切り替える。 */
 export default function YearSegment({ years, currentYear }: YearSegmentProps) {
   return (
     <nav

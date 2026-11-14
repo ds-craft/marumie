@@ -1,3 +1,5 @@
+import { FEATURES } from "@/shared/features";
+
 const DEFAULT_ORGANIZATION_SLUG = "team-mirai";
 const DEFAULT_YEAR = 2026;
 
@@ -24,7 +26,8 @@ function getOrganizationLinks(slug: string): FooterTextLink[] {
     { label: "TOP", href: `${base}#top` },
     { label: "収支の流れ", href: `${base}#cash-flow` },
     { label: "月ごとの収支推移", href: `${base}#monthly-trends` },
-    { label: "貸借対照表", href: `${base}#balance-sheet` },
+    // DSクラフト: 貸借対照表を外しているときは出さない（shared/features.ts）
+    ...(FEATURES.balanceSheet ? [{ label: "貸借対照表", href: `${base}#balance-sheet` }] : []),
     { label: "すべての出入金", href: `${base}#transactions` },
     { label: "データについて", href: `${base}#explanation` },
     { label: "チームみらいについて", href: `${base}#about` },

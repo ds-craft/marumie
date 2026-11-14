@@ -185,3 +185,28 @@ describe("議員室モード", () => {
     expect(isNavItemActive("/politicians/3/books/7/entries", "/politicians/3/books/7/entries")).toBe(true);
   });
 });
+
+describe("DSクラフト: 機能を外したとき（shared/features.ts）", () => {
+  const DS_FEATURES = {
+    politicians: false,
+    researchFund: false,
+    politicalReport: false,
+    balanceSheet: false,
+  };
+
+  it("議員と報告書のセクションを出さず、取り込みまわりは残す", () => {
+    const sections = getVisibleNavSections(["admin"], organizationTarget, {
+      features: DS_FEATURES,
+    });
+    const hrefs = hrefsOf(sections);
+
+    expect(sections.map((s) => s.title)).toEqual(["対象の管理", "データ取り込み", "データ同期"]);
+    expect(hrefs).not.toContain("/politicians");
+    for (const href of ["/counterparts", "/assign/counterparts", "/donors", "/assign/donors", "/export-report"]) {
+      expect(hrefs).not.toContain(href);
+    }
+    for (const href of ["/political-organizations", "/transactions", "/upload-csv", "/users"]) {
+      expect(hrefs).toContain(href);
+    }
+  });
+});

@@ -1,8 +1,9 @@
+import { DEFAULT_PUBLIC_YEAR } from "@/shared/public-years";
 import "server-only";
 import { redirect } from "next/navigation";
 import { loadOrganizations } from "@/server/contexts/public-finance/presentation/loaders/load-organizations";
 
-const DEFAULT_YEAR = 2026;
+const DEFAULT_YEAR = DEFAULT_PUBLIC_YEAR;
 
 interface TransactionsPageProps {
   params: Promise<{

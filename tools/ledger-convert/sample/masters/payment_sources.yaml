@@ -1,0 +1,6 @@
+operator:
+  public_label: 運営者拠出
+  contribution_account: 運営者拠出
+family:
+  public_label: 家族負担
+  contribution_account: 家族負担

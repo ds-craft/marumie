@@ -1,0 +1,3 @@
+id,date,amount_jpy,amount_foreign,currency,type,subcategory,item,payee,payment_source,period,evidence_level,evidence_id,evidence_sha256,public_note,private_note
+2022-001,2022-11-11,1200,,,expense,VPS（本体）,VPS 2GBプラン 11月分,サンプルVPS,operator,p1,receipt,R-2022-001,0000000000000000000000000000000000000000000000000000000000000001,サーバー本体,カードA
+2022-002,2022-12-01,1200,,,expense,VPS（本体）,VPS 2GBプラン 12月分,サンプルVPS,operator,p1,receipt,R-2022-002,0000000000000000000000000000000000000000000000000000000000000002,サーバー本体,

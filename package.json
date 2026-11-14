@@ -35,8 +35,10 @@
     "depcruise:webapp": "depcruise webapp/src --config .dependency-cruiser.cjs",
     "check:usecase-shape": "node --test scripts/check-usecase-shape.test.mjs",
     "test:dependency-diff": "node --test scripts/dependency-diff.test.mjs",
+    "// Ledger": "==== DSクラフト台帳の変換 ====",
+    "ledger:convert": "tsx tools/ledger-convert/convert.ts",
     "// Testing": "===========================================",
-    "test": "pnpm test:admin && pnpm test:webapp",
+    "test": "pnpm test:admin && pnpm test:webapp && pnpm test:ds",
     "test:admin": "pnpm --filter admin test",
     "test:webapp": "pnpm --filter webapp test",
     "test:watch": "pnpm --filter admin test:watch",
@@ -67,7 +69,8 @@
     "// Utilities": "=========================================",
     "clean": "pnpm supabase:stop && rm -rf node_modules */node_modules",
     "fresh": "pnpm clean && pnpm install && pnpm dev:setup",
-    "knip": "knip"
+    "knip": "knip",
+    "test:ds": "tsx --test tools/ledger-convert/*.test.ts shared/*.test.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.1",
@@ -85,7 +88,8 @@
     "simple-git-hooks": "^2.13.1",
     "supabase": "^3.0.0",
     "tsx": "^4.21.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "yaml": "2.9.1"
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged",

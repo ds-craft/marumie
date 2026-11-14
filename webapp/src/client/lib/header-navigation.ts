@@ -18,13 +18,16 @@ interface HeaderNavigation {
   items: HeaderNavigationItem[];
 }
 
+import { FEATURES } from "@/shared/features";
+
 const RESEARCH_FUND_SECTION_HREF = "#research-fund";
+const BALANCE_SHEET_SECTION_HREF = "#balance-sheet";
 
 /** 政治団体ページのセクション（/o/[slug]/[year]）。 */
 const ORGANIZATION_SECTIONS: HeaderNavigationItem[] = [
   { href: "#cash-flow", label: "収支の流れ" },
   { href: "#monthly-trends", label: "1年間の推移" },
-  { href: "#balance-sheet", label: "貸借対照表" },
+  { href: BALANCE_SHEET_SECTION_HREF, label: "貸借対照表" },
   { href: "#transactions", label: "すべての出入金" },
   { href: RESEARCH_FUND_SECTION_HREF, label: "調査研究費" },
   { href: "#explanation", label: "データについて" },
@@ -41,6 +44,8 @@ const POLITICIAN_SECTIONS: HeaderNavigationItem[] = [
 interface HeaderNavigationOptions {
   /** 政治団体ページのナビに「調査研究費」を出すか（調研費を「公開する」議員がいなければ false） */
   showResearchFund?: boolean;
+  /** 政治団体ページのナビに「貸借対照表」を出すか（既定は shared/features.ts の設定） */
+  showBalanceSheet?: boolean;
 }
 
 /**
@@ -51,7 +56,10 @@ export function getHeaderNavigation(
   kind: HeaderPageKind,
   slug: string,
   year: number,
-  { showResearchFund = true }: HeaderNavigationOptions = {},
+  {
+    showResearchFund = true,
+    showBalanceSheet = FEATURES.balanceSheet,
+  }: HeaderNavigationOptions = {},
 ): HeaderNavigation {
   const homeHref =
     kind === "politician"
@@ -61,7 +69,9 @@ export function getHeaderNavigation(
     kind === "politician"
       ? POLITICIAN_SECTIONS
       : ORGANIZATION_SECTIONS.filter(
-          (section) => showResearchFund || section.href !== RESEARCH_FUND_SECTION_HREF,
+          (section) =>
+            (showResearchFund || section.href !== RESEARCH_FUND_SECTION_HREF) &&
+            (showBalanceSheet || section.href !== BALANCE_SHEET_SECTION_HREF),
         );
 
   return {

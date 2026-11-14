@@ -8,64 +8,49 @@ export interface CategoryMapping {
 }
 
 /**
- * アカウント名から表示用カテゴリへのマッピング辞書
+ * 勘定科目名から表示用カテゴリへのマッピング辞書（DSクラフト用）
+ *
+ * - キー（勘定科目名）＝小分類。台帳（ds-craft/ledger）の subcategory 列にこの名前を書く
+ * - category ＝大分類
+ * - 品目（例: サーバー用PC 1台目）は仕訳CSVのタグ列（friendly_category）に入れる
+ *
+ * 台帳の変換スクリプト（tools/ledger-convert）はこの辞書で小分類名を検証する。
  */
 export const PL_CATEGORIES: Record<string, CategoryMapping> = {
   // 収入項目
-  "個人の負担する党費又は会費": {
-    key: "membership-fees",
-    category: "党費・会費",
+  "運営者拠出": {
+    key: "operator-contribution",
+    category: "運営者拠出",
+    subcategory: "運営者拠出",
+    color: "#BFDBFE",
+    shortLabel: "運営者拠出",
+    type: "income"
+  },
+  "家族負担": {
+    key: "family-contribution",
+    category: "家族負担（現物）",
+    subcategory: "家族負担",
     color: "#FED7AA",
-    shortLabel: "党費・会費",
+    shortLabel: "家族負担",
     type: "income"
   },
-  "個人からの寄附": {
-    key: "individual-donations",
-    category: "寄附",
-    subcategory: "個人からの寄附",
+  "個人からの寄付": {
+    key: "donations-individual",
+    category: "寄付",
+    subcategory: "個人からの寄付",
     color: "#BBF7D0",
-    shortLabel: "個人寄附",
+    shortLabel: "個人寄付",
     type: "income"
   },
-  "個人からの寄附（特定寄附）": {
-    key: "specific-individual-donations",
-    category: "寄附",
-    subcategory: "個人からの寄附",
-    color: "#BBF7D0",
-    shortLabel: "個人寄附（特定）",
+  "その他の収入": {
+    key: "income-other",
+    category: "その他の収入",
+    subcategory: "その他の収入",
+    color: "#E2E8F0",
+    shortLabel: "その他収入",
     type: "income"
   },
-  "法人その他の団体からの寄附": {
-    key: "corporate-donations",
-    category: "寄附",
-    subcategory: "法人その他の団体からの寄附",
-    color: "#FECACA",
-    shortLabel: "法人寄附",
-    type: "income"
-  },
-  "政治団体からの寄附": {
-    key: "political-donations",
-    category: "寄附",
-    subcategory: "政治団体からの寄附",
-    color: "#A5F3FC",
-    shortLabel: "政党寄附",
-    type: "income"
-  },
-  "政党匿名寄附": {
-    key: "anonymous-donations",
-    category: "寄附",
-    subcategory: "政党匿名寄附",
-    color: "#E0F6C9",
-    shortLabel: "政党匿名寄附",
-    type: "income"
-  },
-  "機関紙誌の発行その他の事業による収入": {
-    key: "publication-income",
-    category: "機関紙誌+その他事業収入",
-    color: "#FDE68A",
-    shortLabel: "機関紙誌",
-    type: "income"
-  },
+  // 借入金: 現在は使わないが、webapp の貸借対照表の処理が key "loans" の存在を前提にしているため残す
   "借入金": {
     key: "loans",
     category: "借入金",
@@ -73,147 +58,94 @@ export const PL_CATEGORIES: Record<string, CategoryMapping> = {
     shortLabel: "借入金",
     type: "income"
   },
-  "本部又は支部から供与された交付金に係る収入": {
-    key: "grants",
-    category: "交付金",
-    color: "#99F6E4",
-    shortLabel: "交付金",
-    type: "income"
-  },
-  "政治資金パーティーの対価に係る収入": {
-    key: "party-income",
-    category: "パーティー収入",
-    color: "#DDD6FE",
-    shortLabel: "パーティー収入",
-    type: "income"
-  },
-  "寄附のあっせんによるもの": {
-    key: "mediated-donations",
-    category: "寄附",
-    subcategory: "あっせんによる寄附",
-    color: "#C4B5FD",
-    shortLabel: "あっせん寄附",
-    type: "income"
-  },
-  "政治資金パーティー対価のあっせんによるもの": {
-    key: "mediated-party-income",
-    category: "パーティー収入",
-    subcategory: "あっせんによるパーティー対価",
-    color: "#A78BFA",
-    shortLabel: "あっせんパーティー",
-    type: "income"
-  },
-  "その他の収入": {
-    key: "other-income",
-    category: "その他",
-    color: "#E2E8F0",
-    shortLabel: "その他",
-    type: "income"
-  },
 
   // 支出項目
-  "人件費": {
-    key: "personnel-costs",
-    category: "経常経費",
-    subcategory: "人件費",
+  "PC本体": {
+    key: "hw-pc",
+    category: "ハードウェア費",
+    subcategory: "PC本体",
     color: "#0369A1",
-    shortLabel: "人件費",
+    shortLabel: "PC本体",
     type: "expense"
   },
-  "光熱水費": {
-    key: "utilities",
-    category: "経常経費",
-    subcategory: "光熱水費",
-    color: "#126C81",
-    shortLabel: "光熱水費",
+  "パーツ・周辺機器": {
+    key: "hw-parts",
+    category: "ハードウェア費",
+    subcategory: "パーツ・周辺機器",
+    color: "#0E7490",
+    shortLabel: "パーツ・周辺機器",
     type: "expense"
   },
-  "備品・消耗品費": {
-    key: "equipment-supplies",
-    category: "経常経費",
-    subcategory: "備品・消耗品費",
+  "ケーブル・小物": {
+    key: "hw-cables",
+    category: "ハードウェア費",
+    subcategory: "ケーブル・小物",
+    color: "#155E75",
+    shortLabel: "ケーブル・小物",
+    type: "expense"
+  },
+  "VPS（本体）": {
+    key: "cloud-vps-main",
+    category: "クラウド・ドメイン費",
+    subcategory: "VPS（本体）",
     color: "#4D7C0F",
-    shortLabel: "備品消耗品費",
+    shortLabel: "VPS本体",
     type: "expense"
   },
-  "事務所費": {
-    key: "office-expenses",
-    category: "経常経費",
-    subcategory: "事務所費",
+  "VPS（中継）": {
+    key: "cloud-vps-relay",
+    category: "クラウド・ドメイン費",
+    subcategory: "VPS（中継）",
     color: "#047857",
-    shortLabel: "事務所費",
+    shortLabel: "VPS中継",
     type: "expense"
   },
-  "組織活動費": {
-    key: "organizational-activities",
-    category: "政治活動費",
-    subcategory: "組織活動費",
-    color: "#C2410C",
-    shortLabel: "組織活動費",
+  "臨時サーバー（メンテ用）": {
+    key: "cloud-vps-temp",
+    category: "クラウド・ドメイン費",
+    subcategory: "臨時サーバー（メンテ用）",
+    color: "#15803D",
+    shortLabel: "臨時サーバー",
     type: "expense"
   },
-  "選挙関係費": {
-    key: "election-expenses",
-    category: "政治活動費",
-    subcategory: "選挙関係費",
-    color: "#DC2626",
-    shortLabel: "選挙関係費",
+  "ドメイン": {
+    key: "cloud-domain",
+    category: "クラウド・ドメイン費",
+    subcategory: "ドメイン",
+    color: "#65A30D",
+    shortLabel: "ドメイン",
     type: "expense"
   },
-  "機関紙誌の発行事業費": {
-    key: "publication-expenses",
-    category: "政治活動費",
-    subcategory: "機関紙誌の発行事業費",
-    color: "#A16207",
-    shortLabel: "機関紙誌費",
-    type: "expense"
-  },
-  "宣伝事業費": {
-    key: "advertising-expenses",
-    category: "政治活動費",
-    subcategory: "宣伝費",
-    color: "#3856B1",
-    shortLabel: "宣伝事業費",
-    type: "expense"
-  },
-  "政治資金パーティー開催事業費": {
-    key: "fundraising-party-expenses",
-    category: "政治活動費",
-    subcategory: "政治資金パーティー開催費",
+  "ソフトウェア・サービス": {
+    key: "software-services",
+    category: "ソフトウェア・サービス費",
+    subcategory: "ソフトウェア・サービス",
     color: "#6D28D9",
-    shortLabel: "政治資金パーティ費",
+    shortLabel: "ソフト・サービス",
     type: "expense"
   },
-  "その他の事業費": {
-    key: "other-business-expenses",
-    category: "政治活動費",
-    subcategory: "その他の事業費",
+  "電気代": {
+    key: "utility-electricity",
+    category: "光熱費（設置先）",
+    subcategory: "電気代",
+    color: "#C2410C",
+    shortLabel: "電気代",
+    type: "expense"
+  },
+  "決済手数料": {
+    key: "misc-fees",
+    category: "手数料・その他",
+    subcategory: "決済手数料",
+    color: "#475569",
+    shortLabel: "決済手数料",
+    type: "expense"
+  },
+  "その他の支出": {
+    key: "misc-other",
+    category: "手数料・その他",
+    subcategory: "その他の支出",
     color: "#334155",
-    shortLabel: "その他事業費",
-    type: "expense"
-  },
-  "調査研究費": {
-    key: "research-expenses",
-    category: "政治活動費",
-    subcategory: "調査研究費",
-    color: "#047857",
-    shortLabel: "調査研究費",
-    type: "expense"
-  },
-  "寄附・交付金": {
-    key: "donations-grants-expenses",
-    category: "政治活動費",
-    subcategory: "寄附・交付金",
-    color: "#BE185D",
-    shortLabel: "寄附・交付金",
-    type: "expense"
-  },
-  "その他の経費": {
-    key: "other-expenses",
-    category: "政治活動費",
-    subcategory: "その他の経費",
-    color: "#334155",
-    shortLabel: "その他経費",
+    shortLabel: "その他支出",
     type: "expense"
   },
 };
