@@ -24,7 +24,12 @@ export interface GetTransactionsBySlugParams {
   sortBy?: "date" | "amount";
   order?: "asc" | "desc";
   categories?: string[];
+  /** DSクラフト: true なら page / perPage を無視して全件を返す（静的サイトではページ送りをブラウザで行う） */
+  all?: boolean;
 }
+
+/** all のときに取る上限。1 団体・1 年分の件数はこれよりずっと少ない */
+const ALL_TRANSACTIONS_LIMIT = 100_000;
 
 interface GetTransactionsBySlugResult {
   transactions: DisplayTransaction[];
@@ -54,8 +59,10 @@ export class GetTransactionsBySlugUsecase {
         );
       }
 
-      const page = Math.max(params.page || 1, 1);
-      const perPage = Math.min(Math.max(params.perPage || 50, 1), 100);
+      const page = params.all ? 1 : Math.max(params.page || 1, 1);
+      const perPage = params.all
+        ? ALL_TRANSACTIONS_LIMIT
+        : Math.min(Math.max(params.perPage || 50, 1), 100);
 
       const organizationIds = politicalOrganizations.map((org) => org.id);
       const filters: TransactionFilters = {

@@ -14,10 +14,13 @@ import PartyHeadingSection from "@/client/components/top-page/PartyHeadingSectio
 import TransactionsSection from "@/client/components/top-page/TransactionsSection";
 import { loadTopPageData } from "@/server/contexts/public-finance/presentation/loaders/load-top-page-data";
 import { loadOrganizations } from "@/server/contexts/public-finance/presentation/loaders/load-organizations";
+import { loadOrganizationYearParams } from "@/server/contexts/public-finance/presentation/loaders/load-static-params";
 import { formatUpdatedAt } from "@/client/lib/format-date";
 import { getBalanceSheetAsOf } from "@/client/lib/balance-sheet-heading";
 
-export const revalidate = 300; // 5 minutes
+// DSクラフト: 静的サイトとして、団体 × 公開年のページだけを書き出す（本家は 5 分ごとに作り直す）
+export const dynamicParams = false;
+export const generateStaticParams = loadOrganizationYearParams;
 
 const VALID_YEARS = PUBLIC_YEARS;
 const DEFAULT_YEAR = DEFAULT_PUBLIC_YEAR;
