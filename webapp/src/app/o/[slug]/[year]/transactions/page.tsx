@@ -1,5 +1,6 @@
 import { DEFAULT_PUBLIC_YEAR, PUBLIC_YEARS } from "@/shared/public-years";
 import "server-only";
+import { pageTitle } from "@/shared/site-config";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import SiteBottomBlock from "@/client/components/common/SiteBottomBlock";
@@ -34,8 +35,8 @@ export async function generateMetadata({
   const organization = organizations.find((org) => org.slug === validSlug);
 
   return {
-    title: `${organization?.displayName || "Unknown"}:全ての出入金 - みらいまる見え政治資金`,
-    description: `${organization?.displayName || "Unknown"}の政治資金取引一覧を表示しています。`,
+    title: pageTitle(`${organization?.displayName || "Unknown"}:全ての出入金`),
+    description: `${organization?.displayName || "Unknown"}の運営資金の出入金の一覧です。`,
   };
 }
 
@@ -102,7 +103,7 @@ export default async function TransactionsPage({ params, searchParams }: Transac
     });
 
     const organization = data.politicalOrganizations.find((org) => org.slug === slug);
-    const organizationName = organization?.displayName || "未登録の政治団体";
+    const organizationName = organization?.displayName || "未登録の団体";
     const updatedAt = formatUpdatedAt(data.lastUpdatedAt ?? null);
 
     return (

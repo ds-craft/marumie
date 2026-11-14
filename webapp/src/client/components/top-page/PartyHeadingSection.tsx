@@ -4,6 +4,7 @@ import MistHeadingCard from "@/client/components/common/MistHeadingCard";
 import CashFlowSection from "@/client/components/top-page/CashFlowSection";
 import { calculateSankeyFinancialSummary } from "@/client/lib/sankey-financial-summary";
 import type { SankeyData } from "@/types/sankey";
+import { SITE } from "@/shared/site-config";
 
 interface PartyHeadingSectionProps {
   organizationName: string;
@@ -30,10 +31,10 @@ export default function PartyHeadingSection({
 
   return (
     <MistHeadingCard
-      ariaLabel="政党情報"
-      logo={{ src: "/logos/team-mirai-logo.svg", alt: "チームみらいのロゴ" }}
+      ariaLabel="団体情報"
+      logo={SITE.logo}
       title={`${organizationName}の収支`}
-      subtitle={`政党・${year}年`}
+      subtitle={`${year}年`}
       updatedAt={updatedAt}
       years={years.map((y) => ({ year: y, href: `/o/${slug}/${y}` }))}
       currentYear={year}

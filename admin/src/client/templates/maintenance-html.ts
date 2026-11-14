@@ -58,7 +58,7 @@ export function getMaintenanceHtml(message?: string): string {
     <h1>メンテナンス中</h1>
     <p>現在、システムメンテナンスを実施しております。<br>しばらくお待ちください。</p>
     ${additionalMessage}
-    <div class="footer">まる見え政治資金 - 管理画面</div>
+    <div class="footer">DSクラフト まる見え運営資金 - 管理画面</div>
   </div>
 </body>
 </html>`;

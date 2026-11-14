@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SITE } from "@/shared/site-config";
 
 interface SiteLinkCard {
   title: string;
@@ -12,24 +13,24 @@ interface SiteLinkCard {
 
 const CARDS: SiteLinkCard[] = [
   {
-    title: "まる見え政治資金とは？",
-    description: "このサイトが目指していることと、4つの特徴",
+    title: "まる見え運営資金とは？",
+    description: "このサイトで公開していることと、お金の数え方",
     label: "ABOUT",
     href: "/about",
   },
   {
-    title: "よくあるご質問",
-    description: "データの見方や公開の範囲について",
-    label: "FAQ",
-    href: "https://team-mirai.notion.site/FAQ-27ef6f56bae180c085e9f97d05a5d59c",
-    external: { ariaLabel: "よくあるご質問（別タブで開く）" },
+    title: "DSクラフトについて",
+    description: "DSクラフトの公式サイトへ",
+    label: "DS CRAFT",
+    href: SITE.homeUrl,
+    external: { ariaLabel: "DSクラフトについて（公式サイトを別タブで開く）" },
   },
   {
-    title: "チームみらいについて",
-    description: "チームみらいの公式サイトへ",
-    label: "TEAM MIRAI",
-    href: "https://team-mir.ai/",
-    external: { ariaLabel: "チームみらいについて（公式サイトを別タブで開く）" },
+    title: "ソースコード",
+    description: "このサイトのソースコード（AGPL-3.0）",
+    label: "GITHUB",
+    href: SITE.sourceUrl,
+    external: { ariaLabel: "ソースコード（GitHub を別タブで開く）" },
   },
 ];
 
@@ -74,7 +75,7 @@ function CardBody({ card }: { card: SiteLinkCard }) {
   );
 }
 
-/** 下部の共通ブロックのカード3枚（まる見え政治資金とは？／よくあるご質問／チームみらいについて）。 */
+/** 下部の共通ブロックのカード3枚（まる見え運営資金とは？／DSクラフトについて／ソースコード）。 */
 export default function SiteLinkCards() {
   return (
     <nav

@@ -1,6 +1,7 @@
 import { FEATURES } from "@/shared/features";
+import { SITE } from "@/shared/site-config";
 
-const DEFAULT_ORGANIZATION_SLUG = "team-mirai";
+const DEFAULT_ORGANIZATION_SLUG = "ds-craft";
 const DEFAULT_YEAR = 2026;
 
 export interface FooterTextLink {
@@ -10,14 +11,10 @@ export interface FooterTextLink {
 
 /** ページ内アンカー以外の、どのページでも共通のリンク。 */
 const COMMON_LINKS: FooterTextLink[] = [
-  { label: "寄附で応援する", href: "https://team-mir.ai/support/donation" },
-  { label: "チームみらい党員になる", href: "https://team-mir.ai/support/membership" },
-  {
-    label: "よくあるご質問",
-    href: "https://team-mirai.notion.site/FAQ-27ef6f56bae180c085e9f97d05a5d59c",
-  },
-  { label: "利用規約", href: "/terms" },
-  { label: "プライバシーポリシー", href: "/privacy" },
+  // DSクラフト: 本家の寄附・党員・FAQ のリンクを外し、公式サイトとソースコードにする。
+  // 利用規約・プライバシーポリシーは内容が決まるまで載せない（ページは準備中の表示）
+  { label: "DSクラフト公式サイト", href: SITE.homeUrl },
+  { label: "ソースコード", href: SITE.sourceUrl },
 ];
 
 function getOrganizationLinks(slug: string): FooterTextLink[] {
@@ -30,7 +27,7 @@ function getOrganizationLinks(slug: string): FooterTextLink[] {
     ...(FEATURES.balanceSheet ? [{ label: "貸借対照表", href: `${base}#balance-sheet` }] : []),
     { label: "すべての出入金", href: `${base}#transactions` },
     { label: "データについて", href: `${base}#explanation` },
-    { label: "チームみらいについて", href: `${base}#about` },
+    { label: "このサイトについて", href: "/about" },
   ];
 }
 
@@ -47,7 +44,7 @@ function getPoliticianLinks(slug: string, year: number): FooterTextLink[] {
     { label: "貸借対照表", href: `/o/${DEFAULT_ORGANIZATION_SLUG}/#balance-sheet` },
     { label: "すべての出入金", href: `${base}#transactions` },
     { label: "データについて", href: `${base}#explanation` },
-    { label: "チームみらいについて", href: `${base}#about` },
+    { label: "このサイトについて", href: "/about" },
   ];
 }
 
