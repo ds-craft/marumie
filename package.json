@@ -36,6 +36,7 @@
     "check:usecase-shape": "node --test scripts/check-usecase-shape.test.mjs",
     "// Ledger": "==== DSクラフト台帳の変換 ====",
     "ledger:convert": "tsx tools/ledger-convert/convert.ts",
+    "public:import": "pnpm --filter admin exec tsx scripts/import-public-data.ts",
     "// Testing": "===========================================",
     "test": "pnpm test:admin && pnpm test:webapp && pnpm test:ds",
     "test:admin": "pnpm --filter admin test",

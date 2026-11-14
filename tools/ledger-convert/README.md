@@ -12,8 +12,19 @@ pnpm test:ds                                                # テスト
 
 | ファイル | 用途 |
 |---|---|
-| `mf-journal.csv` | MF仕訳帳形式。admin の「CSVアップロード」で取り込む |
+| `mf-journal.csv` | MF仕訳帳形式。`pnpm public:import` で DB に入れる（admin の「CSVアップロード」でも取り込める） |
 | `ledger-public.csv` | 公開してよい列だけの台帳（証憑ID・ハッシュ値・確度・時期つき） |
+
+## DB への取り込み
+
+```bash
+pnpm public:import                 # data/public の organization.json と mf-journal.csv を DB に入れる
+pnpm public:import --dir <dir>     # 別のディレクトリから
+```
+
+- `organization.json` の団体を slug で作成・更新し、その団体の取引を `mf-journal.csv` の内容で入れ替える。台帳から消した行は DB からも消える
+- 取り込めない行が 1 行でもあれば、何も書き込まずに止まる（admin の画面と違い、無効な行を飛ばして保存しない）
+- 接続先は `DATABASE_URL`。静的サイトのビルドで空の DB にデータを入れるために使う
 
 ## 仕訳の作り方
 

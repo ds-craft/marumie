@@ -25,9 +25,10 @@
       "entry": [
         "src/app/**/page.tsx",
         "src/app/**/layout.tsx",
-        "src/app/**/route.ts"
+        "src/app/**/route.ts",
+        "scripts/*.ts"
       ],
-      "project": ["src/**/*.{ts,tsx}"],
+      "project": ["src/**/*.{ts,tsx}", "scripts/*.ts"],
       "ignore": [
         "src/client/components/ui/**/*"
       ],
