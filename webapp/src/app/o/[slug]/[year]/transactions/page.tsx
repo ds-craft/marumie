@@ -3,24 +3,31 @@ import "server-only";
 import { pageTitle } from "@/shared/site-config";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
+import { Suspense } from "react";
 import SiteBottomBlock from "@/client/components/common/SiteBottomBlock";
 import Breadcrumbs from "@/client/components/layout/Breadcrumbs";
 import MainColumn from "@/client/components/layout/MainColumn";
 import SectionCard from "@/client/components/layout/SectionCard";
-import InteractiveTransactionTable from "@/client/components/top-page/features/transactions-table/InteractiveTransactionTable";
+import StaticTransactionTable, {
+  StaticTransactionTableFallback,
+} from "@/client/components/transactions/StaticTransactionTable";
 import { loadTransactionsPageData } from "@/server/contexts/public-finance/presentation/loaders/load-transactions-page-data";
 import { loadOrganizations } from "@/server/contexts/public-finance/presentation/loaders/load-organizations";
+import { loadOrganizationYearParams } from "@/server/contexts/public-finance/presentation/loaders/load-static-params";
 import { formatUpdatedAt } from "@/client/lib/format-date";
 
 const VALID_YEARS = PUBLIC_YEARS;
 const DEFAULT_YEAR = DEFAULT_PUBLIC_YEAR;
+
+// DSクラフト: 静的サイトとして、団体 × 公開年のページだけを書き出す
+export const dynamicParams = false;
+export const generateStaticParams = loadOrganizationYearParams;
 
 interface TransactionsPageProps {
   params: Promise<{
     slug: string;
     year: string;
   }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export async function generateMetadata({
@@ -40,7 +47,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function TransactionsPage({ params, searchParams }: TransactionsPageProps) {
+export default async function TransactionsPage({ params }: TransactionsPageProps) {
   const { slug, year: yearParam } = await params;
 
   // 年度の妥当性をチェック
@@ -58,48 +65,13 @@ export default async function TransactionsPage({ params, searchParams }: Transac
     redirect(`/o/${defaultSlug}/${financialYear}/transactions`);
   }
 
-  const slugs = [slug];
-  const searchParamsResolved = await searchParams;
-
-  const page = parseInt(
-    Array.isArray(searchParamsResolved.page)
-      ? searchParamsResolved.page[0] || "1"
-      : searchParamsResolved.page || "1",
-    10,
-  );
-  const perPage = 50; // Fixed value
-
-  const filterType = Array.isArray(searchParamsResolved.filterType)
-    ? searchParamsResolved.filterType[0]
-    : searchParamsResolved.filterType;
-
-  const transactionType = filterType as "income" | "expense" | undefined;
-
-  // sortBy: 'date' | 'amount' (read from 'sort' URL parameter)
-  const sortBy = Array.isArray(searchParamsResolved.sort)
-    ? searchParamsResolved.sort[0]
-    : searchParamsResolved.sort;
-
-  // order: 'asc' | 'desc'
-  const order = Array.isArray(searchParamsResolved.order)
-    ? searchParamsResolved.order[0]
-    : searchParamsResolved.order;
-
-  // categories: multiple category keys for filtering (comma-separated)
-  const categories = searchParamsResolved.categories
-    ? decodeURIComponent(String(searchParamsResolved.categories)).split(",").filter(Boolean)
-    : undefined;
-
   try {
+    // DSクラフト: 本家はサーバーが URL のクエリでページ送り・絞り込みをするが、
+    // 静的サイトでは 1 年分を全件埋め込み、表示する分はブラウザで作る（StaticTransactionTable）
     const data = await loadTransactionsPageData({
-      slugs,
-      page,
-      perPage,
-      transactionType,
+      slugs: [slug],
       financialYear,
-      sortBy: sortBy as "date" | "amount" | undefined,
-      order: order as "asc" | "desc" | undefined,
-      categories,
+      all: true,
     });
 
     const organization = data.politicalOrganizations.find((org) => org.slug === slug);
@@ -122,16 +94,15 @@ export default async function TransactionsPage({ params, searchParams }: Transac
             updatedAt={updatedAt}
             headingLevel="h1"
           >
-            <InteractiveTransactionTable
-              slug={slug}
-              year={financialYear}
-              transactions={data.transactions}
-              total={data.total}
-              page={data.page}
-              perPage={data.perPage}
-              totalPages={data.totalPages}
-              selectedCategories={categories}
-            />
+            <Suspense
+              fallback={<StaticTransactionTableFallback transactions={data.transactions} />}
+            >
+              <StaticTransactionTable
+                slug={slug}
+                year={financialYear}
+                transactions={data.transactions}
+              />
+            </Suspense>
           </SectionCard>
         </div>
         <SiteBottomBlock />

@@ -18,6 +18,7 @@
     "// Build & Deploy": "====================================",
     "build": "pnpm build:webapp",
     "build:webapp": "pnpm --filter webapp build",
+    "build:site": "rm -rf webapp/.next/cache/fetch-cache && pnpm build:webapp",
     "build:admin": "pnpm --filter admin build",
     "build:all": "pnpm build:webapp && pnpm build:admin",
     "start": "pnpm --filter webapp start",

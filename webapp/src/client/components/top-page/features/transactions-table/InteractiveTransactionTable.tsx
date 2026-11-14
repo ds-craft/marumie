@@ -1,7 +1,7 @@
 "use client";
 import "client-only";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { transactionsCategoryHref } from "@/client/lib/transactions-category-href";
 import type { DisplayTransaction } from "@/server/contexts/public-finance/domain/models/display-transaction";
 import TransactionTable from "./TransactionTable";
@@ -46,9 +46,14 @@ export default function InteractiveTransactionTable({
   totalPages,
   selectedCategories,
 }: InteractiveTransactionTableProps) {
-  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  // DSクラフト: 静的サイトでは表示する分をブラウザで作るので、サーバーへ取りに行かずに URL のクエリだけを書き換える
+  // （Next.js は history.pushState を useSearchParams に反映する）
+  const pushQuery = (params: URLSearchParams) => {
+    window.history.pushState(null, "", `?${params.toString()}`);
+  };
 
   // Parse URL params once
   const currentSort = searchParams.get("sort") as "date" | "amount" | null;
@@ -58,7 +63,7 @@ export default function InteractiveTransactionTable({
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", newPage.toString());
-    router.push(`?${params.toString()}`);
+    pushQuery(params);
   };
 
   const handleSort = (field: "date" | "amount") => {
@@ -73,7 +78,7 @@ export default function InteractiveTransactionTable({
 
     // Reset to page 1 when sorting changes
     params.set("page", "1");
-    router.push(`?${params.toString()}`);
+    pushQuery(params);
   };
 
   const handleMobileSortChange = (sortOption: SortOption) => {
@@ -90,7 +95,7 @@ export default function InteractiveTransactionTable({
     }
 
     params.set("page", "1");
-    router.push(`?${params.toString()}`);
+    pushQuery(params);
   };
 
   const handleApplyFilter = (selectedKeys: string[]) => {
@@ -104,7 +109,7 @@ export default function InteractiveTransactionTable({
 
     // Reset to page 1 when filtering changes
     params.set("page", "1");
-    router.push(`?${params.toString()}`);
+    pushQuery(params);
   };
 
   // 行のカテゴリーのラベルのリンク先。ボタンではなく通常のリンクにして、

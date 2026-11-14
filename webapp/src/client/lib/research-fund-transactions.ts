@@ -252,9 +252,6 @@ export function researchFundTransactionsSummary({
   }`;
 }
 
-/** 調研費ページの「すべての出入金」に最初に出す件数。続きは全件ページで見る。 */
-export const RESEARCH_FUND_PREVIEW_COUNT = 6;
-
 /**
  * 用途カードの「N件」を押したとき、紐づいた行がすべて見える所まで一覧を広げる。
  * 少なくとも何件出せばよいかと、スクロール先の先頭行のIDを返す。紐づく行が無ければ null。

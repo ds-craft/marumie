@@ -1,67 +1,29 @@
-"use client";
-import "client-only";
-
-import { useState } from "react";
-import { downloadTransactionsCsv } from "@/server/contexts/public-finance/presentation/loaders/load-transactions-for-csv";
-
 interface CsvDownloadLinkProps {
   slug: string;
   year: number;
   className?: string;
   children?: React.ReactNode;
-  loadingText?: string;
 }
 
+/**
+ * 出入金履歴の CSV のダウンロードリンク。
+ * DSクラフト: 静的サイトではビルド時に書き出した /o/[slug]/[year]/transactions.csv を直接ダウンロードさせる
+ * （本家は Server Action で CSV を作ってからダウンロードさせる）。
+ */
 export default function CsvDownloadLink({
   slug,
   year,
   className = "",
   children = "出入金履歴をCSVでダウンロード",
-  loadingText = "ダウンロード中...",
 }: CsvDownloadLinkProps) {
-  const [isDownloading, setIsDownloading] = useState(false);
-
-  const handleDownload = async () => {
-    if (isDownloading) return;
-
-    setIsDownloading(true);
-    try {
-      const result = await downloadTransactionsCsv(slug, year);
-
-      if (result.success && result.data) {
-        // BOMを追加してUTF-8で保存
-        const blob = new Blob([`\uFEFF${result.data}`], {
-          type: "text/csv;charset=utf-8;",
-        });
-
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = result.filename || "transactions.csv";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-      } else {
-        alert(result.error || "ダウンロードに失敗しました");
-      }
-    } catch (error) {
-      console.error("Download failed:", error);
-      alert("ダウンロードに失敗しました");
-    } finally {
-      setIsDownloading(false);
-    }
-  };
-
   return (
-    <button
-      type="button"
-      onClick={handleDownload}
-      disabled={isDownloading}
-      className={`disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+    <a
+      href={`/o/${encodeURIComponent(slug)}/${year}/transactions.csv`}
+      download={`transactions_${slug}_${year}.csv`}
+      className={className}
       style={{ fontFamily: "Noto Sans JP" }}
     >
-      {isDownloading ? loadingText : children}
-    </button>
+      {children}
+    </a>
   );
 }

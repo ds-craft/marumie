@@ -1,5 +1,3 @@
-"use server";
-
 import "server-only";
 
 import { unstable_cache } from "next/cache";
@@ -31,53 +29,38 @@ const loadTransactionsForCsv = (params: GetTransactionsForCsvParams) => {
   )();
 };
 
-export async function downloadTransactionsCsv(slug: string, year: number) {
-  try {
-    // すべてのトランザクションを取得
-    const data = await loadTransactionsForCsv({
-      slugs: [slug],
-      financialYear: year,
-    });
+/**
+ * 出入金履歴の CSV（先頭に BOM つき）を作る。
+ * DSクラフト: 本家はボタンを押したときに Server Action で作るが、静的サイトでは Server Action が使えないので、
+ * ビルド時に /o/[slug]/[year]/transactions.csv として書き出す（app/o/[slug]/[year]/transactions.csv/route.ts）。
+ */
+export async function buildTransactionsCsv(slug: string, year: number): Promise<string> {
+  const data = await loadTransactionsForCsv({
+    slugs: [slug],
+    financialYear: year,
+  });
 
-    // CSVヘッダー
-    const headers = ["日付", "政治団体名", "タイプ", "金額", "カテゴリ", "詳細区分", "ラベル"];
+  // CSVヘッダー
+  const headers = ["日付", "政治団体名", "タイプ", "金額", "カテゴリ", "詳細区分", "ラベル"];
 
-    // CSVデータを作成
-    const csvRows = [
-      headers.join(","),
-      ...data.transactions.map((transaction) => {
-        const row = [
-          new Date(transaction.transaction_date).toISOString().split("T")[0],
-          `"${transaction.political_organization_name.replace(/"/g, '""')}"`,
-          transaction.transaction_type === "income" ? "収入" : "支出",
-          transaction.transaction_type === "income"
-            ? transaction.credit_amount.toString()
-            : transaction.debit_amount.toString(),
-          `"${(transaction.transaction_type === "income" ? transaction.credit_account : transaction.debit_account).replace(/"/g, '""')}"`,
-          `"${transaction.friendly_category.replace(/"/g, '""')}"`,
-          `"${transaction.label.replace(/"/g, '""')}"`,
-        ];
-        return row.join(",");
-      }),
-    ];
+  // CSVデータを作成
+  const csvRows = [
+    headers.join(","),
+    ...data.transactions.map((transaction) => {
+      const row = [
+        new Date(transaction.transaction_date).toISOString().split("T")[0],
+        `"${transaction.political_organization_name.replace(/"/g, '""')}"`,
+        transaction.transaction_type === "income" ? "収入" : "支出",
+        transaction.transaction_type === "income"
+          ? transaction.credit_amount.toString()
+          : transaction.debit_amount.toString(),
+        `"${(transaction.transaction_type === "income" ? transaction.credit_account : transaction.debit_account).replace(/"/g, '""')}"`,
+        `"${transaction.friendly_category.replace(/"/g, '""')}"`,
+        `"${transaction.label.replace(/"/g, '""')}"`,
+      ];
+      return row.join(",");
+    }),
+  ];
 
-    const csvContent = csvRows.join("\n");
-
-    // ダウンロード用のレスポンスを返す
-    const now = new Date();
-    const timestamp = now.toISOString().split("T")[0];
-    const filename = `transactions_${slug}_${timestamp}.csv`;
-
-    return {
-      success: true,
-      data: csvContent,
-      filename,
-    };
-  } catch (error) {
-    console.error("CSV download error:", error);
-    return {
-      success: false,
-      error: "CSVのダウンロードに失敗しました",
-    };
-  }
+  return `\uFEFF${csvRows.join("\n")}`;
 }
