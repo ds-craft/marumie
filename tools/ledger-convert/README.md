@@ -26,6 +26,17 @@ pnpm public:import --dir <dir>     # 別のディレクトリから
 - 取り込めない行が 1 行でもあれば、何も書き込まずに止まる（admin の画面と違い、無効な行を飛ばして保存しない）
 - 接続先は `DATABASE_URL`。静的サイトのビルドで空の DB にデータを入れるために使う
 
+## 公開
+
+`main` に push すると、GitHub Actions（`.github/workflows/pages.yml`）が使い捨ての DB に `data/public` を取り込み、
+webapp を静的に書き出して GitHub Pages（https://marumie.ds2.uk）に公開する。
+
+1. `pnpm ledger:convert --ledger ../ledger --out data/public`（`private_words.txt` の検査もここで行われる）
+2. 手元で確かめる：`pnpm public:import` → `pnpm dev`（または `pnpm build:site` で `webapp/out` に書き出す）
+3. `data/public/` の変更をコミットして PR → マージすると公開される
+
+`data/public/mf-journal.csv` がまだないうちは、サンプル台帳でビルドだけして公開しない。
+
 ## 仕訳の作り方
 
 marumie の取り込み処理は「現金類 ↔ 収入・支出科目」の組み合わせしか収支として扱わない。

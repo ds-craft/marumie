@@ -1,0 +1,136 @@
+name: Pages
+
+# 公開サイト（https://marumie.ds2.uk）を GitHub Pages に公開する。
+#
+# 使い捨ての Postgres に data/public の団体の設定と仕訳 CSV を入れ（pnpm public:import）、
+# webapp を静的に書き出して（pnpm build:site）、webapp/out を Pages に公開する。
+#
+# - main への push：ビルドして公開する。ただし data/public/mf-journal.csv がまだなければ、ビルドだけして公開しない
+# - PR：静的に書き出せるかだけを確かめる（公開しない）
+# - 毎月 1 日 9:00（日本時間）：作り直して公開する（既定の年＝当年が、年をまたいでも古いままにならないように）
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - "data/public/**"
+      - "webapp/**"
+      - "shared/**"
+      - "prisma/**"
+      - "admin/scripts/**"
+      - "admin/src/server/contexts/data-import/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/pages.yml"
+  schedule:
+    - cron: "0 0 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# 公開は 1 つずつ順に行う（途中の公開を取り消さない）
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  SITE_URL: https://marumie.ds2.uk
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: marumie
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/marumie
+      DIRECT_URL: postgresql://postgres:postgres@localhost:5432/marumie
+
+    outputs:
+      publish: ${{ steps.data.outputs.publish }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '26'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # 実データの CSV が入るまでは公開しない。CSV がなければサンプル台帳を変換して、書き出せるかだけ確かめる
+      - name: Prepare public data
+        id: data
+        run: |
+          if [ -f data/public/mf-journal.csv ]; then
+            echo "dir=data/public" >> "$GITHUB_OUTPUT"
+            if [ "$GITHUB_EVENT_NAME" != "pull_request" ] && [ "$GITHUB_REF" = "refs/heads/main" ]; then
+              echo "publish=true" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "::notice::data/public/mf-journal.csv がまだないので、サンプル台帳でビルドだけして公開しません"
+            dir="$RUNNER_TEMP/sample-public"
+            pnpm ledger:convert --ledger tools/ledger-convert/sample --out "$dir"
+            cp data/public/organization.json "$dir/"
+            echo "dir=$dir" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Migrate database
+        run: pnpm db:migrate:deploy
+
+      # public:import は admin ディレクトリで動くので、絶対パスで渡す
+      - name: Import public data
+        run: pnpm public:import --dir "$(realpath "$DATA_DIR")"
+        env:
+          DATA_DIR: ${{ steps.data.outputs.dir }}
+
+      - name: Build static site
+        run: pnpm build:site
+        env:
+          WEBAPP_URL: ${{ env.SITE_URL }}
+
+      - name: Upload Pages artifact
+        if: steps.data.outputs.publish == 'true'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: webapp/out
+
+  deploy:
+    needs: build
+    if: needs.build.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
