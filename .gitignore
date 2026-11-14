@@ -32,6 +32,8 @@ data/reports/*
 # next.js
 /.next/
 /out/
+# DSクラフト: webapp の静的書き出し（GitHub Pages に公開する）
+webapp/out/
 
 # production
 /build

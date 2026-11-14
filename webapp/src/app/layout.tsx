@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Noto_Sans, Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import { GoogleAnalytics } from "@next/third-parties/google";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import Footer from "@/client/components/layout/footer/Footer";
 import Header from "@/client/components/layout/header/Header";
 import { SITE } from "@/shared/site-config";
@@ -25,6 +24,8 @@ const notoSans = Noto_Sans({
 });
 
 export const metadata: Metadata = {
+  // OG 画像などの URL を公開先の URL で書き出す（DSクラフト: 静的サイトでは WEBAPP_URL がビルド時に決まる）
+  metadataBase: new URL(process.env.WEBAPP_URL || "http://localhost:3000"),
   title: `${SITE.name} - ${SITE.tagline}`,
   description: SITE.description,
   openGraph: {
@@ -65,7 +66,6 @@ export default function RootLayout({
         <div className="mt-0 sm:mt-16">
           <Footer />
         </div>
-        <SpeedInsights sampleRate={0.1} />
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_TRACKING_ID || ""} />
       </body>
     </html>
