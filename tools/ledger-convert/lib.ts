@@ -15,7 +15,7 @@
  */
 import { PL_CATEGORIES } from "../../shared/accounting/account-category";
 
-export const CASH_ACCOUNT = "現金";
+const CASH_ACCOUNT = "現金";
 
 /** 台帳の列（この順で書く） */
 export const LEDGER_COLUMNS = [
@@ -83,8 +83,8 @@ export const MF_COLUMNS = [
 const EVIDENCE_LEVELS = ["receipt", "statement", "estimate"] as const;
 
 export type LedgerRow = Record<(typeof LEDGER_COLUMNS)[number], string>;
-export type PublicRow = Record<(typeof PUBLIC_COLUMNS)[number], string>;
-export type MfRow = Record<(typeof MF_COLUMNS)[number], string>;
+type PublicRow = Record<(typeof PUBLIC_COLUMNS)[number], string>;
+type MfRow = Record<(typeof MF_COLUMNS)[number], string>;
 
 export interface PaymentSource {
   public_label: string;
@@ -106,13 +106,13 @@ export interface Masters {
   privateWords: string[];
 }
 
-export interface LedgerFile {
+interface LedgerFile {
   /** 例: ledger/2024.csv */
   path: string;
   rows: LedgerRow[];
 }
 
-export interface ConvertResult {
+interface ConvertResult {
   errors: string[];
   warnings: string[];
   mfRows: MfRow[];

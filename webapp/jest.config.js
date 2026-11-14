@@ -15,6 +15,11 @@ module.exports = {
   moduleNameMapper: {
     "^client-only$": "<rootDir>/tests/__mocks__/server-only.js",
     "^server-only$": "<rootDir>/tests/__mocks__/server-only.js",
+    // DSクラフト: 本家のテストは本家の設定（政治資金の区分・全機能・2025〜2026年）で動かす（shared/testing/upstream-config）
+    "^@/shared/accounting/account-category$":
+      "<rootDir>/../shared/testing/upstream-config/account-category.ts",
+    "^@/shared/features$": "<rootDir>/../shared/testing/upstream-config/features.ts",
+    "^@/shared/public-years$": "<rootDir>/../shared/testing/upstream-config/public-years.ts",
     "^@/shared/(.*)$": "<rootDir>/../shared/$1",
     "^@/(.*)$": "<rootDir>/src/$1",
   },

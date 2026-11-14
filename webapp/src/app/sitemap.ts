@@ -1,5 +1,6 @@
 import { PUBLIC_YEARS } from "@/shared/public-years";
 import type { MetadataRoute } from "next";
+import { FEATURES } from "@/shared/features";
 import { loadOrganizations } from "@/server/contexts/public-finance/presentation/loaders/load-organizations";
 import { loadPublishedResearchFundPages } from "@/server/contexts/research-fund/presentation/loaders/load-published-research-fund-pages";
 
@@ -20,7 +21,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 調研費を「公開しない」議員のページは loader が返さないので sitemap に載らない。
   const [{ organizations }, researchFundPages] = await Promise.all([
     loadOrganizations(),
-    loadPublishedResearchFundPages(),
+    FEATURES.politicians && FEATURES.researchFund
+      ? loadPublishedResearchFundPages()
+      : Promise.resolve([] as Awaited<ReturnType<typeof loadPublishedResearchFundPages>>),
   ]);
 
   // リダイレクトなしで表示されるページだけを載せる。

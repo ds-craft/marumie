@@ -1,5 +1,6 @@
 import { DEFAULT_PUBLIC_YEAR, PUBLIC_YEARS } from "@/shared/public-years";
 import "server-only";
+import { FEATURES } from "@/shared/features";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import SiteBottomBlock from "@/client/components/common/SiteBottomBlock";
@@ -100,11 +101,13 @@ export default async function OrgPage({ params }: OrgPageProps) {
         eyebrow={eyebrow}
       />
       <TransparencySection title="党首もこれを見て、お金をやりくりしています👀" />
-      <BalanceSheetSection
-        data={data?.balanceSheetData}
-        updatedAt={getBalanceSheetAsOf(financialYear, updatedAt)}
-        eyebrow={eyebrow}
-      />
+      {FEATURES.balanceSheet && (
+        <BalanceSheetSection
+          data={data?.balanceSheetData}
+          updatedAt={getBalanceSheetAsOf(financialYear, updatedAt)}
+          eyebrow={eyebrow}
+        />
+      )}
       <TransactionsSection
         transactionData={data?.transactionData ?? null}
         updatedAt={updatedAt}

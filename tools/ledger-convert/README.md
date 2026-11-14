@@ -5,7 +5,7 @@
 ```bash
 pnpm ledger:convert --ledger ../ledger --out data/public   # 変換
 pnpm ledger:convert --ledger ../ledger --check             # 検証だけ
-pnpm test:ledger                                           # テスト
+pnpm test:ds                                                # テスト
 ```
 
 出力:

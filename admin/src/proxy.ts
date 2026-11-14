@@ -1,6 +1,7 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 import { getMaintenanceHtml } from "@/client/templates/maintenance-html";
+import { ADMIN_DISABLED_PATH_PREFIXES, isDisabledPath } from "@/shared/features";
 
 async function hashCredentials(credentials: string): Promise<string> {
   const encoder = new TextEncoder();
@@ -68,6 +69,11 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
         "Cache-Control": "no-store, no-cache, must-revalidate",
       },
     });
+  }
+
+  // DSクラフトで使わない機能（shared/features.ts）の画面・API は 404 にする
+  if (isDisabledPath(request.nextUrl.pathname, ADMIN_DISABLED_PATH_PREFIXES)) {
+    return new NextResponse("Not Found", { status: 404 });
   }
 
   // PKCEフローでのパスワードリセット: codeパラメータがルートURLに来た場合は/loginにリダイレクト

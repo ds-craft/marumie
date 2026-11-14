@@ -64,3 +64,18 @@ describe("getHeaderNavigation", () => {
     expect(getHeaderNavigation("politician", "a/b", 2026).homeHref).toBe("/p/a%2Fb/2026/");
   });
 });
+
+describe("getHeaderNavigation（DSクラフト: 貸借対照表を外したとき）", () => {
+  it("showBalanceSheet: false なら政治団体ページのナビに貸借対照表を出さない", () => {
+    const { items } = getHeaderNavigation("organization", "ds-craft", 2023, {
+      showResearchFund: false,
+      showBalanceSheet: false,
+    });
+    const labels = items.map((item) => item.label);
+
+    expect(labels).not.toContain("貸借対照表");
+    expect(labels).not.toContain("調査研究費");
+    expect(labels).toContain("収支の流れ");
+    expect(labels).toContain("すべての出入金");
+  });
+});
