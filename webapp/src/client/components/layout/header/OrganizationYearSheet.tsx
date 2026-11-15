@@ -104,7 +104,7 @@ export default function OrganizationYearSheet({
 
   const triggerLabel = currentPolitician
     ? formatResearchFundSelectorLabel(currentPolitician.name)
-    : (currentOrganization?.displayName ?? "政治団体を選択");
+    : (currentOrganization?.displayName ?? "表示する収支を選択");
 
   return (
     <div className="relative w-full min-w-0 max-w-full">
