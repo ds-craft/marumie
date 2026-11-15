@@ -130,10 +130,12 @@ export default async function LedgerPage() {
             <Section title="証憑の確度">
               <ul className="m-0 flex list-disc flex-col gap-1 pl-6">
                 <li>
-                  <strong>証憑あり</strong>：領収書・請求書があり、その金額を計上しています。
+                  <strong>証憑あり</strong>
+                  ：領収書・請求書・利用明細など、内訳の載った取引先の書類があり、その金額を計上しています。
                 </li>
                 <li>
-                  <strong>明細から</strong>：領収書が無く、カード明細などの金額を計上しています。
+                  <strong>明細から</strong>
+                  ：領収書が無く、カード明細や支払い確認メールなど、金額だけが分かる記録から計上しています。
                 </li>
                 <li>
                   <strong>概算</strong>
