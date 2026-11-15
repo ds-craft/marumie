@@ -5,7 +5,7 @@ interface AmountSummaryItem {
   label: string;
   /** ラベルの前に置く色の印 */
   color: string;
-  /** 円単位の金額。億・万円の表記にして出す。取得できなかったときは null */
+  /** 円単位の金額。3桁区切りの円で出す。取得できなかったときは null */
   amount: number | null;
 }
 

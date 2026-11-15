@@ -62,8 +62,9 @@ const TEXT_CONFIG = {
   TOTAL_NODE_ID: "合計",
   TOTAL_LABEL_TOP: "収入支出",
   TOTAL_LABEL_PERCENTAGE: "100%",
-  CURRENCY_DIVIDER: 10000,
-  CURRENCY_UNIT: "万円",
+  // DSクラフトの金額は数百円〜数万円なので、万円に丸めず円で出す
+  CURRENCY_DIVIDER: 1,
+  CURRENCY_UNIT: "円",
 } as const;
 
 const CHART_CONFIG = {

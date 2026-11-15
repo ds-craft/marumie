@@ -51,10 +51,10 @@ describe("AccessibleFormattedAmount", () => {
 
   it("見出しカードの金額欄で可視表示を隠し、連結した金額だけを読み上げ対象にする", () => {
     const markup = renderToStaticMarkup(
-      <AmountSummary items={[{ label: "収入総額", color: "#000000", amount: 532_100_000 }]} />,
+      <AmountSummary items={[{ label: "収入総額", color: "#000000", amount: 85_157 }]} />,
     );
 
-    expect(markup).toContain('<span class="sr-only">5億3210万円</span>');
+    expect(markup).toContain('<span class="sr-only">85,157円</span>');
     expect(markup).toContain('<span aria-hidden="true" class="flex items-baseline');
     expect(markup.match(/aria-hidden=/g)).toHaveLength(2); // 金額と、ラベルの色の印
   });
@@ -70,6 +70,6 @@ describe("AccessibleFormattedAmount", () => {
     );
 
     expect(markup).toContain("取得できませんでした");
-    expect(markup).toContain('<span class="sr-only">0万円</span>');
+    expect(markup).toContain('<span class="sr-only">0円</span>');
   });
 });

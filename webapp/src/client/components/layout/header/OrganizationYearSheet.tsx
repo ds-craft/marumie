@@ -106,11 +106,20 @@ export default function OrganizationYearSheet({
     ? formatResearchFundSelectorLabel(currentPolitician.name)
     : (currentOrganization?.displayName ?? "表示する収支を選択");
 
+  // DSクラフト: 団体が1つで議員も無いときは選ぶものが無いので、団体名と団体の選択肢を出さず年の切り替えだけにする。
+  // 団体が増えたら（または議員が出たら）本家どおり団体も選べる表示に戻る。
+  const showOrganizationChoices = organizations.organizations.length > 1 || politicians.length > 0;
+
   return (
-    <div className="relative w-full min-w-0 max-w-full">
+    <div
+      className={
+        showOrganizationChoices ? "relative w-full min-w-0 max-w-full" : "relative ml-auto"
+      }
+    >
       {/* Trigger Button */}
       <button
         type="button"
+        aria-label={showOrganizationChoices ? undefined : `表示する年: ${currentYear}年`}
         className="flex items-center gap-4 w-full min-w-0 pb-1.5 pl-6 pr-4 pt-2 border-[0.5px] border-black rounded-lg font-bold hover:opacity-90 transition-opacity cursor-pointer"
         style={{
           backgroundImage:
@@ -118,12 +127,18 @@ export default function OrganizationYearSheet({
         }}
         onClick={() => setIsOpen(true)}
       >
-        <span className="flex flex-col gap-1.5 items-start flex-1 min-w-0 leading-none">
-          <span className="text-[14px] leading-none text-black truncate w-full text-left">
-            {triggerLabel}
+        {showOrganizationChoices ? (
+          <span className="flex flex-col gap-1.5 items-start flex-1 min-w-0 leading-none">
+            <span className="text-[14px] leading-none text-black truncate w-full text-left">
+              {triggerLabel}
+            </span>
+            <span className="text-xs leading-none text-[#238778]">{currentYear}年</span>
           </span>
-          <span className="text-xs leading-none text-[#238778]">{currentYear}年</span>
-        </span>
+        ) : (
+          <span className="py-1 text-[14px] leading-none text-black whitespace-nowrap">
+            {currentYear}年
+          </span>
+        )}
         <Image
           src="/icons/icon-chevron-down.svg"
           alt=""
@@ -147,29 +162,31 @@ export default function OrganizationYearSheet({
           {/* Dropdown Content */}
           <div className="absolute right-0 top-full mt-1 z-50 w-68 bg-white rounded-lg border border-black/50 shadow-lg py-3 max-h-[70vh] overflow-y-auto">
             {/* Organization Selection */}
-            <div className="px-4 flex flex-col gap-1">
-              <p className="text-[11px] text-[#5a5a5a]">表示する団体名</p>
-              <div className="flex flex-col">
-                {organizations.organizations.map((org) => (
-                  <button
-                    key={org.slug}
-                    type="button"
-                    onClick={() => handleOrganizationSelect(org.slug)}
-                    className="flex items-center gap-2 min-h-9 py-2 pl-6 text-left cursor-pointer rounded-md hover:bg-gray-100 transition-colors"
-                  >
-                    <span className="w-3 flex items-center justify-center">
-                      {!currentPoliticianSlug && currentSlug === org.slug && <SelectedMark />}
-                    </span>
-                    <span className="flex flex-col gap-0.5">
-                      <span className="text-xs text-gray-900">{org.displayName}</span>
-                      {org.orgName && (
-                        <span className="text-[10px] text-[#6a6a6a]">{org.orgName}</span>
-                      )}
-                    </span>
-                  </button>
-                ))}
+            {showOrganizationChoices && (
+              <div className="px-4 flex flex-col gap-1">
+                <p className="text-[11px] text-[#5a5a5a]">表示する団体名</p>
+                <div className="flex flex-col">
+                  {organizations.organizations.map((org) => (
+                    <button
+                      key={org.slug}
+                      type="button"
+                      onClick={() => handleOrganizationSelect(org.slug)}
+                      className="flex items-center gap-2 min-h-9 py-2 pl-6 text-left cursor-pointer rounded-md hover:bg-gray-100 transition-colors"
+                    >
+                      <span className="w-3 flex items-center justify-center">
+                        {!currentPoliticianSlug && currentSlug === org.slug && <SelectedMark />}
+                      </span>
+                      <span className="flex flex-col gap-0.5">
+                        <span className="text-xs text-gray-900">{org.displayName}</span>
+                        {org.orgName && (
+                          <span className="text-[10px] text-[#6a6a6a]">{org.orgName}</span>
+                        )}
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Research Fund (Politicians) Selection */}
             {politicians.length > 0 && (
@@ -202,12 +219,12 @@ export default function OrganizationYearSheet({
             )}
 
             {/* Divider */}
-            <hr className="my-2 border-gray-200" />
+            {showOrganizationChoices && <hr className="my-2 border-gray-200" />}
 
             {/* Year Selection */}
             <div className="px-4 py-1 flex flex-col gap-2">
               <p className="text-[11px] text-[#5a5a5a]">対象年</p>
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 {AVAILABLE_YEARS.map((year) => (
                   <button
                     key={year}
