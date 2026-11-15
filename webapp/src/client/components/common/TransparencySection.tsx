@@ -5,7 +5,6 @@ interface TransparencySectionProps {
   title: string;
 }
 
-// DSクラフト: 文言は仮
 export default function TransparencySection({ title }: TransparencySectionProps) {
   return (
     <GradientMessageCard title={title}>

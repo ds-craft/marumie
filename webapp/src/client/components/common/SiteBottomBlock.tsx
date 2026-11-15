@@ -11,9 +11,8 @@ import SiteLinkCards from "@/client/components/common/SiteLinkCards";
 export default function SiteBottomBlock({ dataNotes }: { dataNotes?: DataNote[] }) {
   return (
     <>
-      {/* DSクラフト: 文言は仮 */}
       <GradientMessageCard title="まだ始めたばかりです。少しずつ整えていきます🛠️">
-        過去の支出の掘り起こしや電気代の計測など、公開できる範囲を少しずつ広げていきます。
+        過去の支出の掘り起こしなど、公開できる範囲を少しずつ広げていきます。電気代は2026年11月分から計上を始めます。
       </GradientMessageCard>
       <SiteLinkCards />
       <DataNotesSection notes={dataNotes} />

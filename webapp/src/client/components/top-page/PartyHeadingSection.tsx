@@ -31,7 +31,7 @@ export default function PartyHeadingSection({
 
   return (
     <MistHeadingCard
-      ariaLabel="団体情報"
+      ariaLabel="コミュニティの情報"
       logo={SITE.logo}
       title={`${organizationName}の収支`}
       subtitle={`${year}年`}

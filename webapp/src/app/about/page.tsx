@@ -1,5 +1,6 @@
 import "server-only";
 import type { Metadata } from "next";
+import Link from "next/link";
 import SiteBottomBlock from "@/client/components/common/SiteBottomBlock";
 import Breadcrumbs from "@/client/components/layout/Breadcrumbs";
 import MainColumn from "@/client/components/layout/MainColumn";
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 
 const LINK_CLASS = "font-bold text-[#238778] underline hover:no-underline";
 
-/** 「まる見え運営資金とは」ページ。DSクラフト: 文言は仮 */
+/** 「まる見え運営資金とは」ページ（DSクラフト） */
 export default function AboutPage() {
   return (
     <MainColumn spacing="compact">
@@ -36,7 +37,11 @@ export default function AboutPage() {
               いまは運営者が費用を負担しています。運営者が払った分は、返済を受けない持ち出しとして「運営者拠出」の収入にも計上しているため、収入と支出は同じ額になります。
             </p>
             <p className="m-0">
-              数え方の詳しい決まりは、このページの下の「データについて」をご覧ください。
+              数え方の詳しい決まりは、このページの下の「データについて」をご覧ください。台帳の各行と証憑（領収書・請求書）は
+              <Link href="/ledger/" className={LINK_CLASS}>
+                公開台帳と証憑
+              </Link>
+              で見られます。
               {SITE.communityShortName}そのものについては
               <a
                 href={SITE.homeUrl}
