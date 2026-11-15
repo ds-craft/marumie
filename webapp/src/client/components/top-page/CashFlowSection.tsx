@@ -21,8 +21,9 @@ interface CashFlowSectionProps {
 }
 
 const TABS = [
-  { key: "friendly", label: "品目別" },
+  // 区分別（大きなまとまり）を左・既定にし、品目別（細かい内訳）を右に置く
   { key: "political", label: "区分別" },
+  { key: "friendly", label: "品目別" },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -41,7 +42,7 @@ export default function CashFlowSection({
   chart,
   emptyMessage = "サンキー図データが取得できませんでした",
 }: CashFlowSectionProps) {
-  const [activeTab, setActiveTab] = useState<TabKey>("friendly");
+  const [activeTab, setActiveTab] = useState<TabKey>("political");
   const tabRefs = useRef<Partial<Record<TabKey, HTMLButtonElement | null>>>({});
 
   const currentData = activeTab === "political" ? political : friendly;

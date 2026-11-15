@@ -5,35 +5,17 @@ export interface FormattedAmount {
   unit: string;
 }
 
-// 金額を万円単位でフォーマットする関数
+/**
+ * 金額を円単位（3桁区切り）でフォーマットする関数。
+ * DSクラフトの金額は数百円〜数万円なので、本家のように万円に丸めると「0万円」「4万円」となって意味をなさない。
+ * secondary / tertiary は億・万の表記の名残で、いまは常に空文字。
+ */
 export function formatAmount(amount: number): FormattedAmount {
-  const isNegative = amount < 0;
-  const absAmount = Math.abs(amount);
-  const manAmount = Math.round(absAmount / 10000); // 万円に変換
-  const sign = isNegative ? "-" : "";
-
-  if (manAmount >= 10000) {
-    const oku = Math.floor(manAmount / 10000);
-    const man = manAmount % 10000;
-    if (man === 0) {
-      return {
-        main: `${sign}${oku}`,
-        secondary: "億",
-        tertiary: "",
-        unit: "円",
-      };
-    }
-    return {
-      main: `${sign}${oku}`,
-      secondary: "億",
-      tertiary: man.toString(),
-      unit: "万円",
-    };
-  }
+  const sign = amount < 0 ? "-" : "";
   return {
-    main: `${sign}${manAmount}`,
+    main: `${sign}${Math.round(Math.abs(amount)).toLocaleString("ja-JP")}`,
     secondary: "",
     tertiary: "",
-    unit: "万円",
+    unit: "円",
   };
 }
