@@ -1,5 +1,6 @@
 import type { Transaction } from "@/shared/models/transaction";
 import { PL_CATEGORIES, type CategoryMapping } from "@/shared/accounting/account-category";
+import type { EvidenceLevel } from "@/shared/public-ledger";
 
 /**
  * DisplayTransaction ドメインモデル
@@ -12,6 +13,17 @@ import { PL_CATEGORIES, type CategoryMapping } from "@/shared/accounting/account
  * 表示用取引タイプ（offset系は除外）
  */
 export type DisplayTransactionType = "income" | "expense";
+
+/**
+ * DSクラフト: 取引の元になった台帳の行の、証憑の確度と公開している証憑
+ */
+export interface TransactionEvidence {
+  /** 台帳の id（例: 2023-001） */
+  ledgerId: string;
+  level: EvidenceLevel;
+  /** 公開している証憑のファイル名（例: R-2023-001.pdf）。公開していなければ無い */
+  file?: string;
+}
 
 /**
  * 表示用取引データ
@@ -31,6 +43,10 @@ export interface DisplayTransaction {
   friendly_category: string;
   absAmount: number;
   amount: number;
+  /** DSクラフト: 仕訳の取引No（台帳の行と結び付けるのに使う） */
+  transactionNo?: string;
+  /** DSクラフト: 台帳の証憑（公開台帳があるときだけ付く） */
+  evidence?: TransactionEvidence;
 }
 
 /**
@@ -127,6 +143,7 @@ export function convertToDisplayTransaction(transaction: Transaction): DisplayTr
     friendly_category: transaction.friendly_category,
     absAmount,
     amount,
+    transactionNo: transaction.transaction_no,
   };
 }
 

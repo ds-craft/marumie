@@ -34,6 +34,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.5,
     },
+    // DSクラフト: 公開台帳と証憑
+    {
+      url: `${baseUrl}/ledger`,
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
   ];
 
   // 各組織の年度ごとのページを追加

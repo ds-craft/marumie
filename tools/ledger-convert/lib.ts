@@ -14,6 +14,8 @@
  *   type=income の行（寄付など）は 1 行: 借方 現金 / 貸方 小分類。
  */
 import { PL_CATEGORIES } from "../../shared/accounting/account-category";
+import { parseCsv } from "../../shared/csv";
+import { EVIDENCE_EXTENSIONS, EVIDENCE_LEVELS } from "../../shared/public-ledger";
 
 const CASH_ACCOUNT = "現金";
 
@@ -56,6 +58,7 @@ export const PUBLIC_COLUMNS = [
   "evidence_id",
   "evidence_sha256",
   "evidence_redacted_sha256",
+  "evidence_file",
   "public_note",
 ] as const;
 
@@ -80,8 +83,6 @@ export const MF_COLUMNS = [
   "タグ",
   "メモ",
 ] as const;
-
-const EVIDENCE_LEVELS = ["receipt", "statement", "estimate"] as const;
 
 export type LedgerRow = Record<(typeof LEDGER_COLUMNS)[number], string>;
 type PublicRow = Record<(typeof PUBLIC_COLUMNS)[number], string>;
@@ -125,54 +126,6 @@ interface ConvertResult {
 
 // ---------------------------------------------------------------------------
 // CSV
-
-/** RFC 4180 形式の CSV を読む（ダブルクォート・改行入りの値に対応） */
-export function parseCsv(text: string): string[][] {
-  const rows: string[][] = [];
-  let row: string[] = [];
-  let field = "";
-  let inQuotes = false;
-  const s = text.replace(/^﻿/, "");
-  for (let i = 0; i < s.length; i++) {
-    const c = s[i];
-    if (inQuotes) {
-      if (c === '"') {
-        if (s[i + 1] === '"') {
-          field += '"';
-          i++;
-        } else {
-          inQuotes = false;
-        }
-      } else {
-        field += c;
-      }
-    } else if (c === '"') {
-      inQuotes = true;
-    } else if (c === ",") {
-      row.push(field);
-      field = "";
-    } else if (c === "\n" || c === "\r") {
-      if (c === "\r" && s[i + 1] === "\n") i++;
-      row.push(field);
-      rows.push(row);
-      row = [];
-      field = "";
-    } else {
-      field += c;
-    }
-  }
-  if (field !== "" || row.length > 0) {
-    row.push(field);
-    rows.push(row);
-  }
-  return rows.filter((r) => !(r.length === 1 && r[0].trim() === ""));
-}
-
-export function toCsv<T extends string>(columns: readonly T[], rows: Record<T, string>[]): string {
-  const esc = (v: string) => (/[",\r\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
-  const lines = [columns.join(","), ...rows.map((r) => columns.map((c) => esc(r[c] ?? "")).join(","))];
-  return `${lines.join("\n")}\n`;
-}
 
 export function parseLedgerCsv(path: string, text: string): { file: LedgerFile; errors: string[] } {
   const errors: string[] = [];
@@ -333,6 +286,8 @@ export function convertLedger(files: LedgerFile[], masters: Masters): ConvertRes
         evidence_id: r.evidence_id,
         evidence_sha256: r.evidence_sha256,
         evidence_redacted_sha256: r.evidence_redacted_sha256,
+        // 証憑ファイルを照合してから attachEvidenceFiles で入れる
+        evidence_file: "",
         public_note: r.public_note,
       };
 
@@ -370,4 +325,61 @@ export function convertLedger(files: LedgerFile[], masters: Masters): ConvertRes
   );
 
   return { errors, warnings, mfRows, publicRows };
+}
+
+// ---------------------------------------------------------------------------
+// 証憑ファイル
+
+interface EvidenceCopy {
+  evidenceId: string;
+  /** 証憑フォルダ（黒塗り版）でのファイル名（例: R-2026-007_20260522_amazon_1.pdf） */
+  source: string;
+  /** 公開するファイル名（例: R-2026-007.pdf）。日付・取引先はファイル名に出さない */
+  target: string;
+  /** 台帳に書かれた黒塗り版のハッシュ値 */
+  sha256: string;
+}
+
+/**
+ * 黒塗り版のハッシュ値がある行に、公開する証憑ファイルを割り当てる（publicRows の evidence_file を埋める）。
+ * 証憑フォルダのファイルは「証憑ID_….拡張子」か「証憑ID.拡張子」の名前で探す。
+ * ハッシュ値の照合はファイルを読む側（convert.ts）で行う。
+ */
+export function attachEvidenceFiles(
+  publicRows: PublicRow[],
+  fileNames: string[],
+): { copies: EvidenceCopy[]; errors: string[] } {
+  const errors: string[] = [];
+  const copies = new Map<string, EvidenceCopy>();
+  for (const row of publicRows) {
+    const id = row.evidence_id;
+    if (!row.evidence_redacted_sha256 || !id) continue;
+    const known = copies.get(id);
+    if (known) {
+      if (known.sha256 !== row.evidence_redacted_sha256) {
+        errors.push(`${row.id}: 同じ証憑 ${id} を使う行で黒塗り版のハッシュ値が違います`);
+      }
+      row.evidence_file = known.target;
+      continue;
+    }
+    const matches = fileNames.filter((f) => f.startsWith(`${id}_`) || f.startsWith(`${id}.`));
+    if (matches.length !== 1) {
+      errors.push(
+        matches.length === 0
+          ? `${row.id}: 証憑 ${id} のファイルが証憑フォルダにありません`
+          : `${row.id}: 証憑 ${id} のファイルが複数あります: ${matches.join(", ")}`,
+      );
+      continue;
+    }
+    const source = matches[0];
+    const ext = source.slice(source.lastIndexOf(".")).toLowerCase();
+    if (!(EVIDENCE_EXTENSIONS as readonly string[]).includes(ext)) {
+      errors.push(`${row.id}: 証憑 ${source} は公開できる形式（${EVIDENCE_EXTENSIONS.join(" ")}）ではありません`);
+      continue;
+    }
+    const copy = { evidenceId: id, source, target: `${id}${ext}`, sha256: row.evidence_redacted_sha256 };
+    copies.set(id, copy);
+    row.evidence_file = copy.target;
+  }
+  return { copies: [...copies.values()], errors };
 }

@@ -81,3 +81,6 @@ docs/report_format.xlsx
 # loop engineering
 .loop/
 /tmp/
+
+# 公開台帳と証憑は data/public が正本。ビルドの前に pnpm public:stage がここへコピーする
+webapp/public/evidence/

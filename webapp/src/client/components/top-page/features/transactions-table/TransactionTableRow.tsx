@@ -2,6 +2,7 @@
 import "client-only";
 
 import TransactionCategoryPill from "@/client/components/top-page/features/transactions-table/TransactionCategoryPill";
+import TransactionEvidenceLine from "@/client/components/top-page/features/transactions-table/TransactionEvidenceLine";
 import { PL_CATEGORIES } from "@/shared/accounting/account-category";
 import type { DisplayTransaction } from "@/server/contexts/public-finance/domain/models/display-transaction";
 
@@ -121,6 +122,9 @@ export default function TransactionTableRow({
               labelClassName="text-xs font-medium text-left leading-[1em]"
             />
           </div>
+
+          {/* DSクラフト: 証憑の確度・証憑・台帳の行 */}
+          <TransactionEvidenceLine evidence={transaction.evidence} />
         </div>
       </td>
 
@@ -146,10 +150,14 @@ export default function TransactionTableRow({
       </td>
 
       {/* Title column - flexible width */}
-      <td className="hidden md:table-cell h-16">
-        <span className="leading-7 font-bold text-base text-gray-800">
-          {getDisplayTitle(transaction)}
-        </span>
+      <td className="hidden md:table-cell h-16 py-2">
+        <div className="flex flex-col">
+          <span className="leading-7 font-bold text-base text-gray-800">
+            {getDisplayTitle(transaction)}
+          </span>
+          {/* DSクラフト: 証憑の確度・証憑・台帳の行 */}
+          <TransactionEvidenceLine evidence={transaction.evidence} />
+        </div>
       </td>
 
       {/* Amount column - 180px width */}

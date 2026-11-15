@@ -9,6 +9,7 @@ import {
   GetTransactionsBySlugUsecase,
 } from "@/server/contexts/public-finance/application/usecases/get-transactions-by-slug-usecase";
 import { CACHE_REVALIDATE_SECONDS } from "@/server/contexts/public-finance/presentation/loaders/constants";
+import { attachEvidence } from "@/server/contexts/public-finance/presentation/loaders/load-public-ledger";
 
 export const loadTransactionsPageData = (params: GetTransactionsBySlugParams) => {
   const cacheKey = ["transactions-page-data", JSON.stringify(params)];
@@ -22,7 +23,9 @@ export const loadTransactionsPageData = (params: GetTransactionsBySlugParams) =>
         politicalOrganizationRepository,
       );
 
-      return await usecase.execute(params);
+      const result = await usecase.execute(params);
+      // DSクラフト: 各行に台帳の証憑を付ける
+      return { ...result, transactions: await attachEvidence(result.transactions) };
     },
     cacheKey,
     { revalidate: CACHE_REVALIDATE_SECONDS, tags: ["transactions-page-data"] },
