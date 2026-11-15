@@ -105,7 +105,8 @@ export default function HeaderClient({
                 );
               })}
             </nav>
-            <div className="flex items-center w-full max-w-[217px] min-w-0 h-12 flex-shrink">
+            {/* 幅はセレクタ側で決める（年だけの表示では中身の幅に縮め、メニューとの間に余白を作らない） */}
+            <div className="flex items-center justify-end min-w-0 h-12 flex-shrink">
               <OrganizationYearSheet
                 organizations={organizations}
                 politiciansByYear={politiciansByYear}

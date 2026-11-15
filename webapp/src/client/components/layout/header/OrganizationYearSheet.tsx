@@ -111,11 +111,7 @@ export default function OrganizationYearSheet({
   const showOrganizationChoices = organizations.organizations.length > 1 || politicians.length > 0;
 
   return (
-    <div
-      className={
-        showOrganizationChoices ? "relative w-full min-w-0 max-w-full" : "relative ml-auto"
-      }
-    >
+    <div className={showOrganizationChoices ? "relative w-[217px] min-w-0 max-w-full" : "relative"}>
       {/* Trigger Button */}
       <button
         type="button"
